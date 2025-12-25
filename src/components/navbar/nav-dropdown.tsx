@@ -13,20 +13,19 @@ export const Categories = [
 export default function CategoryDropdown() {
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger className="text-sm font-medium text-black hover:text-red-600 focus:outline-none">
+             <DropdownMenuTrigger className="text-sm font-medium text-foreground/80 hover:text-primary focus:outline-none">
                 Categories
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
                 align="start"
-                className="w-48 bg-white text-black"
+                className="w-48"
             >
                 {Categories.map((cat)=> (
                     <DropdownMenuItem 
                         key={cat.slug} asChild
                     >
                         <Link
-                         className="cursor-pointer text-sm hover:text-red-600"
                          href={`/category/${cat.slug}`}
                         >
                             {cat.name}
