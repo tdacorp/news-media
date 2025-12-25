@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import NavLinks from "./nav-links";
 
 export default function Navbar(){
     return (
@@ -18,7 +19,9 @@ export default function Navbar(){
                 </span>
                 </Link>
 
-                <div>nan-menu</div>
+                <div>
+                    <NavLinks />
+                </div>
                 <div>searh-bar and social links</div>
             </div>
         </header>
