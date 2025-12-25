@@ -26,7 +26,6 @@ const footerLinks = {
         { name: "Sports", href: "/sports" },
         { name: "Entertainment", href: "/entertainment" },
         { name: "Technology", href: "/technology" },
-        { name: "Trending", href: "trending" }
 
     ],
 }
@@ -92,12 +91,38 @@ export default function Footer() {
 
                     {/* Legel  */}
                     <div>
-                        <h1>legel</h1>
+                       <h3 className="font-bold text-foreground mb-4 cursor-pointer">Legal</h3>
+                        <ul className="space-y-2">
+                            {footerLinks.legal.map((link) => (
+                                <li key={link.name}
+                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                >
+                                    <Link
+                                        href={link.href}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
 
                     {/* categories */}
                     <div>
-                        <h1>international</h1>
+                        <h3 className="font-bold text-foreground mb-4 cursor-pointer">Categories</h3>
+                        <ul className="space-y-2">
+                            {footerLinks.categoryies.map((link) => (
+                                <li key={link.name}
+                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                >
+                                    <Link
+                                        href={link.href}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </div>
