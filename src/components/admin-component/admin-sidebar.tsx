@@ -47,7 +47,7 @@ export function AdminSidebar() {
     return (
         <div className="flex h-full w-64 flex-col border-r border-border bg-card">
 
-            <div className="flex h-full w-64 items-center border-b border bg-card">
+            <div className="flex h-16 items-center border-b border-border px-6">
                 <Link
                     href="/admin"
                     className=""
@@ -62,8 +62,6 @@ export function AdminSidebar() {
                         />
                     </div>
                     <div>
-                        <span className="text-lg font-bold text-foreground">Trisari aankh </span>
-                        <span className="text-md block font-bold text-foreground">Rajgarh </span>
                         <span className="text-xs text-muted-foreground block">Admin Panel</span>
                     </div>
                 </Link>
