@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function Navbar(){
     return (
         <header className="w-full border-b bg-white">
-            <div>
+            <div className="max-w-7xl mx-auto flex items-center justify-between px-4 h-14">
 
                 <Link href="/" className="flex items-center gap-2">
                 <Image 
