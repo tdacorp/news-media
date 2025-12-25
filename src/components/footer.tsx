@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react"
+import Link from "next/link"
 
 
 
@@ -35,10 +36,10 @@ export default function Footer() {
     return (
         <footer className="bg-card border-t border-border mt-12">
             <div className="container mx-auto px-x py-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:mx-4">
                     {/* logo & socials links */}
-                    <div>
-                        <div className="flex items-center space-x-2 mb-4">
+                    <div className="mx-4">
+                        <div className="flex items-center space-x-2 ">
                             <div className="flex items-center justify-center">
                                 <Image
                                     src="/logo.jpeg"
@@ -46,7 +47,7 @@ export default function Footer() {
                                     width={80}
                                     height={75}
                                     className="rounded-lg transform transition-transform duration-400 hover:scale-105"
-                                /> 
+                                />
                             </div>
                             <span className="text-xl font-bold text-foreground">Tisari aankh Rajgarh</span>
                         </div>
@@ -73,7 +74,20 @@ export default function Footer() {
 
                     {/* company  */}
                     <div>
-                        <h1>home</h1>
+                        <h3 className="font-bold text-foreground mb-4 cursor-pointer">Company</h3>
+                        <ul className="space-y-2">
+                            {footerLinks.company.map((link) => (
+                                <li key={link.name}
+                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                >
+                                    <Link
+                                        href={link.href}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
 
                     {/* Legel  */}
