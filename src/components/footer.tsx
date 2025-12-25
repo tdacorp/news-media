@@ -2,6 +2,7 @@ import Image from "next/image"
 import { Button } from "./ui/button"
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react"
 import Link from "next/link"
+import { Separator } from "./ui/separator"
 
 
 
@@ -77,7 +78,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             {footerLinks.company.map((link) => (
                                 <li key={link.name}
-                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                    className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
                                 >
                                     <Link
                                         href={link.href}
@@ -91,11 +92,11 @@ export default function Footer() {
 
                     {/* Legel  */}
                     <div>
-                       <h3 className="font-bold text-foreground mb-4 cursor-pointer">Legal</h3>
+                        <h3 className="font-bold text-foreground mb-4 cursor-pointer">Legal</h3>
                         <ul className="space-y-2">
                             {footerLinks.legal.map((link) => (
                                 <li key={link.name}
-                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                    className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
                                 >
                                     <Link
                                         href={link.href}
@@ -113,7 +114,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             {footerLinks.categoryies.map((link) => (
                                 <li key={link.name}
-                                className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
+                                    className="text-sm text-muted-foregroud hover:text-destructive transiton-colors"
                                 >
                                     <Link
                                         href={link.href}
@@ -124,6 +125,12 @@ export default function Footer() {
                             ))}
                         </ul>
                     </div>
+                </div>
+
+                <Separator className="my-8" />
+                <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Trisai aansk Rajgarh News. All rights reserved.</p>
+                    <p className="text-sm text-muted-foreground">Made with TDACorp with love</p>
                 </div>
             </div>
         </footer>
