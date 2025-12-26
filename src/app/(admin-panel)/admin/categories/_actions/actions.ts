@@ -13,17 +13,8 @@ export async function getAllCategories() {
       .from(categories)
       .orderBy(desc(categories.createdAt));
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "23505"
-    ) {
-      return {
-        error: "Fetch Categories Error",
-      };
-    }
-    return { error: "Something went wrong. Please try again." };
+    console.error("Fetch Categories Error:", error);
+    return { error: "Failed to fetch categories. Please try again." };
   }
 }
 

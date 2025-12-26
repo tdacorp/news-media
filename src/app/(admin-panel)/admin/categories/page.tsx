@@ -12,7 +12,15 @@ import { AddCategoryDialog } from "@/components/admin-component/add-category-dia
 import { CategoryActions } from "@/components/admin-component/category-actions";
 
 export default async function CategoriesPage() {
-  const allCategories = await getAllCategories();
+  const result = await getAllCategories();
+
+  if ("error" in result) {
+    return (
+      <div className="p-6 text-destructive text-center">{result.error}</div>
+    );
+  }
+
+  const allCategories = result;
 
   return (
     <main className="flex-1 overflow-y-auto bg-background p-4 md:p-6">
