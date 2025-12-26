@@ -39,15 +39,8 @@ export async function getAllUsers(query?: string) {
       )
       .orderBy(desc(users.createdAt));
   } catch (error) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error &&
-      error.code === "23505"
-    ) {
-      return { error: "Fetch Users Error" };
-    }
-    return { error: "Something went wrong. Please try again." };
+    console.error("Failed to fetch users:", error);
+    return { error: "Failed to fetch users. Please try again." };
   }
 }
 
@@ -130,7 +123,7 @@ export async function deleteUser(userId: string) {
       typeof error === "object" &&
       error !== null &&
       "code" in error &&
-      error.code === "23505"
+      error.code === "23503"
     ) {
       return {
         error:

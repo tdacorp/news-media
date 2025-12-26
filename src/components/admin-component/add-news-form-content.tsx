@@ -15,21 +15,29 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Clock, Eye, FileText, Save, Upload } from "lucide-react";
 import { getAllCategories } from "@/app/(admin-panel)/admin/categories/_actions/actions";
+import { type categories as categoriesSchema } from "@/lib/db/schema/categories";
+
+type Category = typeof categoriesSchema.$inferSelect;
 
 export default function AddNewsFormContent() {
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchCats() {
       setIsLoading(true);
+      setError(null);
       try {
         const res = await getAllCategories();
-        if (Array.isArray(res)) {
+        if ("error" in res) {
+          setError(res.error);
+        } else if (Array.isArray(res)) {
           setCategories(res);
         }
       } catch (error) {
         console.error("Failed to fetch categories", error);
+        setError("An unexpected error occurred while fetching categories");
       } finally {
         setIsLoading(false);
       }
@@ -78,6 +86,10 @@ export default function AddNewsFormContent() {
                     {isLoading ? (
                       <div className="p-2 text-sm text-muted-foreground">
                         Loading categories...
+                      </div>
+                    ) : error ? (
+                      <div className="p-2 text-sm text-destructive">
+                        {error}
                       </div>
                     ) : categories.length > 0 ? (
                       categories.map((cat) => (

@@ -80,7 +80,7 @@ export default async function Users({
                           {user.name || "N/A"}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          @{user.username}
+                          {user.username ? `@${user.username}` : "N/A"}
                         </TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>
