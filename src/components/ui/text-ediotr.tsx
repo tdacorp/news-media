@@ -15,7 +15,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 const Tiptap = () => {
     const editor = useEditor({
-        extensions: [StarterKit, HighLight.configure({ multicolor: true })], // define your extension array
+        extensions: [StarterKit.configure({
+            heading: {
+                levels: [1, 2, 3, 4, 5, 6]
+            }
+        })
+
+            , HighLight.configure({ multicolor: true })], // define your extension array
         content: '<p>Hello World!</p>', // initial content
         editorProps: {
             attributes: {
@@ -104,31 +110,71 @@ function LinkComponent({
 const ToolBar = ({ editor }: { editor: Editor }) => {
     const editorState = useEditorState({
         editor, selector: (ctx) => {
+            const e = ctx.editor;
+            if (!e) {
+                return {
+                    isBold: false,
+                    isItalic: false,
+                    isUnderline: false,
+                    isStrike: false,
+                    isHiglight: false,
+                    isCode: false,
+                    isBulletList: false,
+                    isOrderedList: false,
+                    isBlockquote: false,
+                    isLink: false,
+                    canRedo: false,
+                    canUndo: false,
+                    isHeading2: false,
+                    isHeading3: false,
+                    isHeading4: false,
+                    isHeading5: false,
+                    isHeading6: false,
+                    isParagraph: false,
+
+                    
+                }
+            }
             return {
-                isBold: ctx.editor.isActive("bold") ?? false,
-                isItalic: ctx.editor.isActive("italic") ?? false,
-                isUnderline: ctx.editor.isActive("underline") ?? false,
-                isStrike: ctx.editor.isActive("strike") ?? false,
-                isHiglight: ctx.editor.isActive("highlight") ?? false,
-                isCode: ctx.editor.isActive("code") ?? false,
-                isBulletList: ctx.editor.isActive("bulletList") ?? false,
-                isOrderedList: ctx.editor.isActive("orderedList") ?? false,
-                isBlockquote: ctx.editor.isActive("blockquote") ?? false,
-                isLink: ctx.editor.isActive("link") ?? false,
-                canRedo: editor.can().redo(),
-                canUndo: editor.can().undo(),
-                isHeading2: ctx.editor.isActive("heading", { level: 2 }) ?? false,
-                isHeading3: ctx.editor.isActive("heading", { level: 3 }) ?? false,
-                isHeading4: ctx.editor.isActive("heading", { level: 4 }) ?? false,
-                isHeading5: ctx.editor.isActive("heading", { level: 5 }) ?? false,
-                isHeading6: ctx.editor.isActive("heading", { level: 6 }) ?? false,
-                isParagraph: ctx.editor.isActive("paragraph") ?? false,
+                isBold: e.isActive("bold") ?? false,
+                isItalic: e.isActive("italic") ?? false,
+                isUnderline: e.isActive("underline") ?? false,
+                isStrike: e.isActive("strike") ?? false,
+                isHiglight: e.isActive("highlight") ?? false,
+                isCode: e.isActive("code") ?? false,
+                isBulletList: e.isActive("bulletList") ?? false,
+                isOrderedList: e.isActive("orderedList") ?? false,
+                isBlockquote: e.isActive("blockquote") ?? false,
+                isLink: e.isActive("link") ?? false,
+                canRedo: e.can().redo(),
+                canUndo: e.can().undo(),
+                isHeading1: e.isActive("heading", { level: 1 }) ?? false,
+                isHeading2: e.isActive("heading", { level: 2 }) ?? false,
+                isHeading3: e.isActive("heading", { level: 3 }) ?? false,
+                isHeading4: e.isActive("heading", { level: 4 }) ?? false,
+                isHeading5: e.isActive("heading", { level: 5 }) ?? false,
+                isHeading6: e.isActive("heading", { level: 6 }) ?? false,
+                isParagraph: e.isActive("paragraph") ?? false,
 
             };
+            
         },
     });
 
+    console.log("🧪=== EDITOR DEBUG ===", {
+        isHeading1: editorState.isHeading1,
+        isHeading2: editorState.isHeading2,
+        isHeading3: editorState.isHeading3,
+        isParagraph: editorState.isParagraph,
+        isBulletList: editorState.isBulletList,
+        isOrderedList: editorState.isOrderedList,
+        isBlockquote: editorState.isBlockquote,
+        currentNode: editor?.getAttributes("heading")?.level || "OTHER",
+        selection: editor?.state.selection?.from || "none"
+    });
+
     const handleHeadinChange = (value: string) => {
+        if (!editor) return;
         if (value === "paragraph") {
             editor.chain().focus().setParagraph().run();
         } else {
@@ -154,13 +200,14 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
                 <Select
                     onValueChange={handleHeadinChange}
                     value={
-                        editorState.isHeading2
-                            ? "heading2"
-                            : editorState.isHeading3 ? "heading3"
-                                : editorState.isHeading4 ? "heading4"
-                                    : editorState.isHeading5 ? "heading5"
-                                        : editorState.isHeading6 ? "heading6"
-                                            : "paragraph"
+                        editorState.isHeading1 ? "heading1" :
+                            editorState.isHeading2 ? "heading2" :
+                                editorState.isHeading3 ? "heading3" :
+                                    editorState.isHeading4 ? "heading4" :
+                                        editorState.isHeading5 ? "heading5" :
+                                            editorState.isHeading6 ? "heading6" :
+                                             editorState.isParagraph ? "paragraph" :
+                                                "paragraph"
                     }
                 >
                     <SelectTrigger className='w-[180px]'>
@@ -169,11 +216,12 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="paragraph">Paragraph</SelectItem>
-                        <SelectItem value="heading2">Heading 1</SelectItem>
-                        <SelectItem value="heading3">Heading 2</SelectItem>
-                        <SelectItem value="heading4">Heading 3</SelectItem>
-                        <SelectItem value="heading5">Heading 4</SelectItem>
-                        <SelectItem value="heading6">Heading 5</SelectItem>
+                        <SelectItem value="heading1">Heading1</SelectItem>
+                        <SelectItem value="heading2">Heading 2</SelectItem>
+                        <SelectItem value="heading3">Heading 3</SelectItem>
+                        <SelectItem value="heading4">Heading 4</SelectItem>
+                        <SelectItem value="heading5">Heading 5</SelectItem>
+                        <SelectItem value="heading6">Heading 6</SelectItem>
                     </SelectContent>
 
                 </Select>
