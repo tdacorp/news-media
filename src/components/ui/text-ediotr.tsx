@@ -68,7 +68,7 @@ function LinkComponent({
 
     return (
         <Popover open={isLinkPoppverOpen} onOpenChange={setIsLinkPopoverOpen} >
-            <PopoverTrigger>{children}</PopoverTrigger>
+            <PopoverTrigger asChild >{children}</PopoverTrigger>
 
             <PopoverContent className="w-80 p-4">
                 <div className="flex flex-col gap-4">
@@ -304,7 +304,7 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
                     variant={"ghost"}
                     onClick={() => editor.chain().focus().undo().run()}
                     disabled={!editorState.canUndo}
-                    aria-lable="undo"
+                    aria-label="undo"
                 >
                     <UndoIcon className="h-4 w-4" />
 
@@ -315,7 +315,7 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
                     variant={"ghost"}
                     onClick={() => editor.chain().focus().redo().run()}
                     disabled={!editorState.canRedo}
-                    aria-lable="Redo"
+                    aria-label="Redo"
                 >
                     <RedoIcon className="h-4 w-4" />
 
