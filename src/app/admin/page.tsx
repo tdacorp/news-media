@@ -1,5 +1,6 @@
 import { AdminHeader } from "@/components/admin-component/admin-header";
 import { AdminSidebar } from "@/components/admin-component/admin-sidebar";
+import Tiptap from "@/components/ui/text-ediotr";
 
 
 
@@ -17,7 +18,9 @@ export default function AdminDashboard() {
                             <p className="text-muted-foreground">Welcome back! Here's what's happening today.</p>
                         </div>
 
-
+                            <div>
+                                <Tiptap />
+                            </div>
                     </div>
                 </main>
             </div>
