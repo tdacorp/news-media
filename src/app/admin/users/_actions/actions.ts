@@ -39,7 +39,7 @@ export async function getAllUsers(query?: string) {
       )
       .orderBy(desc(users.createdAt));
   } catch (error) {
-    return [];
+    return { error: "Fetch Users Error" };
   }
 }
 
@@ -91,6 +91,7 @@ export async function updateUserDetails(
     revalidatePath("/admin/users");
     return { success: "User updated successfully" };
   } catch (error) {
+    console.error("Update User Error:", error);
     return { error: "Database error: Could not update user." };
   }
 }
@@ -105,12 +106,12 @@ export async function deleteUser(userId: string) {
   }
 
   try {
-    const result = await db.delete(users).where(eq(users.id, userId));
+    await db.delete(users).where(eq(users.id, userId));
 
     revalidatePath("/admin/users");
     return { success: "User deleted successfully" };
-  } catch (error: any) {
-    if (error.code === "23503") {
+  } catch (error) {
+    if (error instanceof Object && "code" in error && error.code === "23503") {
       return {
         error: "User has linked data (Articles/Posts) and cannot be deleted.",
       };

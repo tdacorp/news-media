@@ -32,9 +32,9 @@ export async function addCategory(
       .values({ name, slug: slug.toLowerCase().trim(), description });
     revalidatePath("/admin/categories");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Add Category Error:", error);
-    if (error.code === "23505") {
+    if (error instanceof Object && "code" in error && error.code === "23505") {
       return { error: "Category name or slug already exists" };
     }
     return { error: "Failed to add category. Please try again." };
@@ -80,9 +80,9 @@ export async function updateCategory(
 
     revalidatePath("/admin/categories");
     return { success: true };
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update Category Error:", error);
-    if (error.code === "23505") {
+    if (error instanceof Object && "code" in error && error.code === "23505") {
       return { error: "Category name or slug already exists" };
     }
     return { error: "Failed to update category. Please try again." };
