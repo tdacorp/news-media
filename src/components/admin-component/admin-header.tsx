@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Bell, Search } from "lucide-react";
 import { Input } from "../ui/input";
@@ -14,26 +14,27 @@ import { Badge } from "../ui/badge";
 
 export function AdminHeader() {
   const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const { replace } = useRouter();
-  
-    // Dynamic Placeholder
-    const getPlaceholder = () => {
-      if (pathname.includes("/admin/user")) return "Search users by name...";
-      if (pathname.includes("/admin/article")) return "Search articles by title...";
-      return "Search everywhere...";
-    };
-  
-    const handleSearch = useDebouncedCallback((term: string) => {
-      const params = new URLSearchParams(searchParams);
-      if (term) {
-        params.set("query", term);
-      } else {
-        params.delete("query");
-      }
-      replace(`${pathname}?${params.toString()}`);
-    }, 300);
-    
+  const searchParams = useSearchParams();
+  const { replace } = useRouter();
+
+  // Dynamic Placeholder
+  const getPlaceholder = () => {
+    if (pathname.includes("/admin/users")) return "Search users by name...";
+    if (pathname.includes("/admin/article"))
+      return "Search articles by title...";
+    return "Search everywhere...";
+  };
+
+  const handleSearch = useDebouncedCallback((term: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("query", term);
+    } else {
+      params.delete("query");
+    }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
+
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
       <div className="flex flex-1 items-center justify-between">
