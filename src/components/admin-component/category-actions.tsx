@@ -34,7 +34,7 @@ export function CategoryActions({ category }: { category: Category }) {
       } else {
         toast.error(res?.error || "Failed to delete");
       }
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsDeleting(false);
@@ -64,7 +64,7 @@ export function CategoryActions({ category }: { category: Category }) {
               This action cannot be undone. This will permanently delete the
               category{" "}
               <span className="font-bold text-foreground">
-                "{category.name}"
+                &quot;{category.name}&quot;
               </span>
               .
             </AlertDialogDescription>
