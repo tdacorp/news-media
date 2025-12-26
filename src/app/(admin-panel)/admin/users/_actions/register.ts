@@ -5,8 +5,11 @@ import { users } from "@/lib/db/schema/user";
 import { userRegistrationSchema } from "@/lib/validations/user";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
-export async function registerUser(data: any) {
+type RegisterInput = z.infer<typeof userRegistrationSchema> | FormData;
+
+export async function registerUser(data: RegisterInput) {
   const rawData =
     data instanceof FormData ? Object.fromEntries(data.entries()) : data;
   const result = userRegistrationSchema.safeParse(rawData);
@@ -32,8 +35,13 @@ export async function registerUser(data: any) {
 
     revalidatePath("/admin/users");
     return { success: "User created successfully!" };
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
       return { error: "Email or Username already exists." };
     }
     return { error: "Something went wrong. Please try again." };

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/user";
 import { eq, and, ne, or, ilike, desc } from "drizzle-orm";
-import { auth } from "../../../../../auth";
+import { auth } from "../../../../../../auth";
 import { revalidatePath } from "next/cache";
 
 // ID se user lana
@@ -39,7 +39,8 @@ export async function getAllUsers(query?: string) {
       )
       .orderBy(desc(users.createdAt));
   } catch (error) {
-    return [];
+    console.error("Failed to fetch users:", error);
+    return { error: "Failed to fetch users. Please try again." };
   }
 }
 
@@ -91,7 +92,15 @@ export async function updateUserDetails(
     revalidatePath("/admin/users");
     return { success: "User updated successfully" };
   } catch (error) {
-    return { error: "Database error: Could not update user." };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return { error: "Update Users Error Could not update user." };
+    }
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -105,16 +114,22 @@ export async function deleteUser(userId: string) {
   }
 
   try {
-    const result = await db.delete(users).where(eq(users.id, userId));
+    await db.delete(users).where(eq(users.id, userId));
 
     revalidatePath("/admin/users");
     return { success: "User deleted successfully" };
-  } catch (error: any) {
-    if (error.code === "23503") {
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23503"
+    ) {
       return {
-        error: "User has linked data (Articles/Posts) and cannot be deleted.",
+        error:
+          "Failed to delete user and user has linked data (Articles/Posts) and cannot be deleted.",
       };
     }
-    return { error: "Failed to delete user." };
+    return { error: "Something went wrong. Please try again." };
   }
 }

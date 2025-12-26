@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import { addCategory } from "@/app/admin/categories/_actions/actions";
+import { addCategory } from "@/app/(admin-panel)/admin/categories/_actions/actions";
 import { toast } from "sonner"; 
 
 export function AddCategoryDialog() {
