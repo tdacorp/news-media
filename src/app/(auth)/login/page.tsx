@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { registerUser } from "@/app/admin/user/_actions/register";
+import { registerUser } from "@/app/admin/users/_actions/register";
 import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
