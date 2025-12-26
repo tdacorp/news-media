@@ -12,8 +12,15 @@
     {
       "idx": 1,
       "version": "7",
-      "when": 1766673285775,
-      "tag": "0001_silky_doctor_spectrum",
+      "when": 1766740302188,
+      "tag": "0001_curious_quasar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1766740845766,
+      "tag": "0002_dear_sleeper",
       "breakpoints": true
     }
   ]
