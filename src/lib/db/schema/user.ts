@@ -5,11 +5,11 @@ import {
   primaryKey,
   integer,
   pgEnum,
-  uniqueIndex
-} from "drizzle-orm/pg-core"
-import type { AdapterAccountType } from "next-auth/adapters"
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+import type { AdapterAccountType } from "next-auth/adapters";
 
-export const userRoleEnum = pgEnum("user_role", ["admin", "user"])
+export const userRoleEnum = pgEnum("user_role", ["admin", "user"]);
 
 export const users = pgTable("user", {
   id: text("id")
@@ -30,7 +30,7 @@ export const users = pgTable("user", {
   return {
     usernameIdx: uniqueIndex("username_idx").on(table.username),
   }
-})
+});
 
 export const accounts = pgTable(
   "account",

@@ -1,11 +1,17 @@
-import NextAuth from "next-auth"
-import { DrizzleAdapter } from "@auth/drizzle-adapter"
-import { db } from "@/lib/db"
-import Google from "next-auth/providers/google"
-import GitHub from "next-auth/providers/github"
+import NextAuth from "next-auth";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { db } from "@/lib/db";
+import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
+import Credentials from "next-auth/providers/credentials";
+import { eq } from "drizzle-orm";
+import { users } from "@/lib/db/schema/user";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: DrizzleAdapter(db),
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
@@ -15,15 +21,51 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.AUTH_GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET,
     }),
+    Credentials({
+      name: "Credentials",
+      async authorize(credentials) {
+        const parsedCredentials = z
+          .object({ email: z.string().email(), password: z.string().min(8) })
+          .safeParse(credentials);
+
+        if (!parsedCredentials.success) return null;
+
+        const { email, password } = parsedCredentials.data;
+
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email));
+
+        if (!user || !user.password) return null;
+
+        const passwordsMatch = await bcrypt.compare(password, user.password);
+
+        if (passwordsMatch) return user;
+
+        return null;
+      },
+    }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id as string;
+        token.role = (user.role as "admin" | "user") ?? "user";
+        token.username = user.username;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = user.id
-        session.user.role = user.role ?? "user"
-        session.user.username = user.username
+        session.user.id = token.id;
+        session.user.role = token.role ?? "user";
+        session.user.username = token.username;
       }
       return session;
     },
   },
-})
+  pages: {
+    signIn: "/login",
+  },
+});
