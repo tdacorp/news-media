@@ -27,7 +27,7 @@ import { Label } from "@/components/ui/label";
 import {
   deleteUser,
   updateUserDetails,
-} from "../../app/admin/users/_actions/actions"; 
+} from "../../app/(admin-panel)/admin/users/_actions/actions"; 
 // import { toast } from "sonner"; 
 
 export function UserActions({ user }: { user: any }) {

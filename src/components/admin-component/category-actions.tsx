@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit } from "lucide-react";
-import { deleteCategory } from "@/app/admin/categories/_actions/actions";
+import { deleteCategory } from "@/app/(admin-panel)/admin/categories/_actions/actions";
 import { EditCategoryDialog } from "./edit-category-dialog";
 import { toast } from "sonner";
 

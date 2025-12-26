@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema/user";
 import { eq, and, ne, or, ilike, desc } from "drizzle-orm";
-import { auth } from "../../../../../auth";
+import { auth } from "../../../../../../auth";
 import { revalidatePath } from "next/cache";
 
 // ID se user lana
@@ -39,6 +39,7 @@ export async function getAllUsers(query?: string) {
       )
       .orderBy(desc(users.createdAt));
   } catch (error) {
+    console.error("Update User Error:", error);
     return { error: "Fetch Users Error" };
   }
 }
