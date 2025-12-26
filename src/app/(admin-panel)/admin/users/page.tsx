@@ -42,7 +42,7 @@ export default async function Users({
               User Management
             </h1>
             <p className="text-muted-foreground">
-              Mange admin , editors and autors
+              Manage admins, editors, and authors
             </p>
           </div>
           <Button>

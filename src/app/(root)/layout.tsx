@@ -9,7 +9,7 @@ export default function SiteLayout({
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">{children}</main>
-      {/* Aap yahan Footer bhi add kar sakte hain baad mein */}
+      {/* Footer can be added here later */}
     </div>
   );
 }

@@ -13,8 +13,17 @@ export async function getAllCategories() {
       .from(categories)
       .orderBy(desc(categories.createdAt));
   } catch (error) {
-    console.error("Fetch Categories Error:", error);
-    return [];
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return {
+        error: "Fetch Categories Error",
+      };
+    }
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -33,11 +42,18 @@ export async function addCategory(
     revalidatePath("/admin/categories");
     return { success: true };
   } catch (error) {
-    console.error("Add Category Error:", error);
-    if (error instanceof Object && "code" in error && error.code === "23505") {
-      return { error: "Category name or slug already exists" };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return {
+        error:
+          "Failed to add category. Category name or slug already exists. Please try again.",
+      };
     }
-    return { error: "Failed to add category. Please try again." };
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -52,8 +68,17 @@ export async function deleteCategory(
     revalidatePath("/admin/categories");
     return { success: true };
   } catch (error) {
-    console.error("Delete Category Error:", error);
-    return { error: "Could not delete category. It might be in use." };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return {
+        error: "Could not delete category. It might be in use.",
+      };
+    }
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -81,10 +106,16 @@ export async function updateCategory(
     revalidatePath("/admin/categories");
     return { success: true };
   } catch (error) {
-    console.error("Update Category Error:", error);
-    if (error instanceof Object && "code" in error && error.code === "23505") {
-      return { error: "Category name or slug already exists" };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return {
+        error: "Category name or slug already exists",
+      };
     }
-    return { error: "Failed to update category. Please try again." };
+    return { error: "Something went wrong. Please try again." };
   }
 }

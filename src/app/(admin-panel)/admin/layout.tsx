@@ -12,7 +12,7 @@ export default function AdminLayout({
       <AdminSidebar />
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Header mein useSearchParams hai, isliye ise Suspense mein wrap kiya */}
+        {/* AdminHeader uses useSearchParams, so it must be wrapped in Suspense */}
         <Suspense fallback={<div className="h-16 border-b bg-background animate-pulse" />}>
           <AdminHeader />
         </Suspense>

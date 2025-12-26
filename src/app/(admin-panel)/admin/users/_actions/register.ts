@@ -36,7 +36,12 @@ export async function registerUser(data: RegisterInput) {
     revalidatePath("/admin/users");
     return { success: "User created successfully!" };
   } catch (error) {
-    if (error instanceof Object && "code" in error && error.code === "23505") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
       return { error: "Email or Username already exists." };
     }
     return { error: "Something went wrong. Please try again." };

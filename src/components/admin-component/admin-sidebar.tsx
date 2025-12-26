@@ -15,6 +15,8 @@ import { ScrollArea } from "../ui/scroll-area";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 const SidebarLinks = [
   {
@@ -51,9 +53,10 @@ const SidebarLinks = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
-    <div className="flex h-full w-14 md:w-64 flex-col border-r border-border bg-card">
+    <aside className="flex h-full w-14 md:w-64 flex-col border-r border-border bg-card">
       <div className="flex h-16 items-center justify-center md:justify-start border-b border-border px-2 md:px-6 ">
         <Link href="/admin" className="flex items-center gap-2">
           <div className="flex items-center justify-center md:m-2">
@@ -100,26 +103,31 @@ export function AdminSidebar() {
       <div className="border-t border-border p-4">
         <div className="flex items-center space-x-3 mb-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground font-semibold">
-            Ms
+            {session?.user?.name ? (
+              session.user.name.slice(0, 2).toUpperCase()
+            ) : (
+              <Users className="h-4 w-4" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              Mohit Saini
+              {session?.user?.name || "Mohit Saini"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              mohit@newshub.com
+              {session?.user?.email || "mohit@newshub.com"}
             </p>
           </div>
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="w-full bg-transparent flex justify-center md:justify-start"
+          className="w-full justify-center md:justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="h-4 w-4 md:mr-2" />
           <span className="hidden md:inline">Logout</span>
         </Button>
       </div>
-    </div>
+    </aside>
   );
 }

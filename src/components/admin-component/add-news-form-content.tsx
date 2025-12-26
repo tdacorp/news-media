@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,8 +14,29 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Clock, Eye, FileText, Save, Upload } from "lucide-react";
+import { getAllCategories } from "@/app/(admin-panel)/admin/categories/_actions/actions";
 
 export default function AddNewsFormContent() {
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCats() {
+      setIsLoading(true);
+      try {
+        const res = await getAllCategories();
+        if (Array.isArray(res)) {
+          setCategories(res);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchCats();
+  }, []);
+
   return (
     <main className="flex-1 overflow-y-auto bg-background">
       <div className="container mx-auto p-6 max-w-4xl">
@@ -46,17 +68,28 @@ export default function AddNewsFormContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select>
+                <Select key={categories.length}>
                   <SelectTrigger id="category">
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue
+                      placeholder={isLoading ? "Loading..." : "Select category"}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="national">National</SelectItem>
-                    <SelectItem value="international">International</SelectItem>
-                    <SelectItem value="sports">Sports</SelectItem>
-                    <SelectItem value="entertainment">Entertainment</SelectItem>
-                    <SelectItem value="technology">Technology</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
+                    {isLoading ? (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        Loading categories...
+                      </div>
+                    ) : categories.length > 0 ? (
+                      categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>
+                        No categories found
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -83,7 +116,17 @@ export default function AddNewsFormContent() {
             {/* Image Upload */}
             <div className="space-y-2">
               <Label>Featured Image *</Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:bg-secondary/50 transition-colors cursor-pointer">
+              <label
+                htmlFor="featured-image"
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:bg-secondary/50 transition-colors cursor-pointer block"
+              >
+                <input
+                  id="featured-image"
+                  type="file"
+                  accept="image/png,image/jpeg,image/gif"
+                  className="sr-only"
+                  aria-label="Upload featured image"
+                />
                 <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground mb-1">
                   Click to upload or drag and drop
@@ -91,7 +134,7 @@ export default function AddNewsFormContent() {
                 <p className="text-xs text-muted-foreground">
                   PNG, JPG, GIF up to 10MB
                 </p>
-              </div>
+              </label>
             </div>
 
             {/* Content Editor Placeholder */}

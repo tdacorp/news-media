@@ -39,8 +39,15 @@ export async function getAllUsers(query?: string) {
       )
       .orderBy(desc(users.createdAt));
   } catch (error) {
-    console.error("Update User Error:", error);
-    return { error: "Fetch Users Error" };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return { error: "Fetch Users Error" };
+    }
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -92,8 +99,15 @@ export async function updateUserDetails(
     revalidatePath("/admin/users");
     return { success: "User updated successfully" };
   } catch (error) {
-    console.error("Update User Error:", error);
-    return { error: "Database error: Could not update user." };
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
+      return { error: "Update Users Error Could not update user." };
+    }
+    return { error: "Something went wrong. Please try again." };
   }
 }
 
@@ -112,11 +126,17 @@ export async function deleteUser(userId: string) {
     revalidatePath("/admin/users");
     return { success: "User deleted successfully" };
   } catch (error) {
-    if (error instanceof Object && "code" in error && error.code === "23503") {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "23505"
+    ) {
       return {
-        error: "User has linked data (Articles/Posts) and cannot be deleted.",
+        error:
+          "Failed to delete user and user has linked data (Articles/Posts) and cannot be deleted.",
       };
     }
-    return { error: "Failed to delete user." };
+    return { error: "Something went wrong. Please try again." };
   }
 }
