@@ -1,0 +1,28 @@
+import { pgTable, text, varchar, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
+import { users } from "./user"; 
+import { categories } from "./categories";
+
+export const statusEnum = pgEnum("status", ["draft", "published", "archived"]);
+
+export const articles = pgTable("articles", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+
+  excerpt: text("excerpt"),
+
+  content: text("content").notNull(),
+
+  featuredImage: text("featured_image"),
+  videoUrl: text("video_url"),
+
+  authorId: text("author_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  categoryId: uuid("category_id").references(() => categories.id).notNull(),
+
+  tags: text("tags").array(),
+
+  status: statusEnum("status").default("draft").notNull(),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
