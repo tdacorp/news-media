@@ -64,8 +64,10 @@ export async function getAllArticles(filters?: {
       .select({
         id: articles.id,
         title: articles.title,
+        slug: articles.slug,
         status: articles.status,
         createdAt: articles.createdAt,
+        updatedAt: articles.updatedAt,
         categoryName: categories.name,
         authorName: users.name,
       })
@@ -81,3 +83,48 @@ export async function getAllArticles(filters?: {
     return { error: "Failed to fetch articles" };
   }
 }
+
+export async function getArticleById(id: string) {
+  try {
+    const data = await db.query.articles.findFirst({
+      where: eq(articles.id, id),
+      with: {
+        category: true,
+      },
+    });
+    return data;
+  } catch (error) {
+    return { error: "Failed to fetch article" };
+  }
+}
+
+export async function deleteArticle(id: string) {
+  try {
+    await db.delete(articles).where(eq(articles.id, id));
+
+    revalidatePath("/admin/manage-news");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to delete article" };
+  }
+}
+
+export async function updateArticle(id: string, values: any) {
+  try {
+    await db
+      .update(articles)
+      .set({
+        ...values,
+        updatedAt: new Date(),
+      })
+      .where(eq(articles.id, id));
+
+    revalidatePath("/admin/manage-news");
+    return { success: true };
+  } catch (error) {
+    return { error: "Failed to update article" };
+  }
+}
+
+export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
+export type ArticleSingleItem = Extract<ArticleListItem, any[]>[number];

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Pencil, Trash2, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { db } from "@/lib/db";
 import { categories } from "@/lib/db/schema";
 import { ArticleFilters } from "@/components/admin-component/article-filters";
+import { ArticleActions } from "@/components/admin-component/article-actions";
 
 export default async function ManageNewsPage({
   searchParams,
@@ -112,32 +113,7 @@ export default async function ManageNewsPage({
                         {format(new Date(article.createdAt), "MMM dd, yyyy")}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            title="Perview"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <ArticleActions article={article} />
                       </TableCell>
                     </TableRow>
                   ))
