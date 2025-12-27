@@ -1,3 +1,4 @@
+import { BreakingNewsTicker } from "@/components/breaking-ticker/breaking-news-ticker";
 import { auth, signIn, signOut } from "../../../auth";
 
 
@@ -6,6 +7,7 @@ export default async function Home() {
 
   return (
     <div>
+      <BreakingNewsTicker />
       <h1>welcome to news media</h1>
       <p> we are launcing soon </p>
 
