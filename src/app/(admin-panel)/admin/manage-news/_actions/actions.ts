@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
 import { auth } from "../../../../../../auth";
 import { categories, users } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 
 export async function createArticle(formData: {
   title: string;
@@ -22,7 +22,9 @@ export async function createArticle(formData: {
     const session = await auth();
     if (!session?.user?.id) return { error: "Unauthorized" };
 
-    const slug = `${slugify(formData.title)}-${Math.random().toString(36).substring(2, 7)}`;
+    const slug = `${slugify(formData.title)}-${Math.random()
+      .toString(36)
+      .substring(2, 7)}`;
 
     await db.insert(articles).values({
       ...formData,
@@ -38,8 +40,26 @@ export async function createArticle(formData: {
   }
 }
 
-export async function getAllArticles() {
+export async function getAllArticles(filters?: {
+  search?: string;
+  category?: string;
+  status?: string;
+}) {
   try {
+    const queryConditions = [];
+
+    if (filters?.search) {
+      queryConditions.push(ilike(articles.title, `%${filters.search}%`));
+    }
+
+    if (filters?.category && filters.category !== "all") {
+      queryConditions.push(eq(categories.slug, filters.category));
+    }
+
+    if (filters?.status && filters.status !== "all") {
+      queryConditions.push(eq(articles.status, filters.status as any));
+    }
+
     const data = await db
       .select({
         id: articles.id,
@@ -52,6 +72,7 @@ export async function getAllArticles() {
       .from(articles)
       .leftJoin(categories, eq(articles.categoryId, categories.id))
       .leftJoin(users, eq(articles.authorId, users.id))
+      .where(and(...queryConditions))
       .orderBy(desc(articles.createdAt));
 
     return data;

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Pencil, Trash2, Search, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,18 +12,23 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { getAllArticles } from "./_actions/actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { format } from "date-fns";
+import { db } from "@/lib/db";
+import { categories } from "@/lib/db/schema";
+import { ArticleFilters } from "@/components/admin-component/article-filters";
 
-export default async function ManageNewsPage() {
-  const articlesData = await getAllArticles();
+export default async function ManageNewsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    search?: string;
+    category?: string;
+    status?: string;
+  }>;
+}) {
+  const filters = await searchParams;
+  const articlesData = await getAllArticles(filters);
+  const categoriesList = await db.select().from(categories);
 
   // Error handling
   if ("error" in articlesData) {
@@ -34,14 +39,16 @@ export default async function ManageNewsPage() {
     <main className="flex-1 overflow-y-auto bg-background">
       <div className="container mx-auto p-4 md:p-6">
         {/* Page Title */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-foreground">
-            Manage Articles
-          </h1>
-          <p className="text-muted-foreground">
-            View and manage your news content
-          </p>
-          <Button asChild>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Manage Articles
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Create, edit and manage your news stories across all categories.
+            </p>
+          </div>
+          <Button asChild className="shrink-0 shadow-sm">
             <Link href="/admin/add-news">
               <Plus className="w-4 h-4 mr-2" /> New Article
             </Link>
@@ -49,45 +56,7 @@ export default async function ManageNewsPage() {
         </div>
 
         {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search articles..."
-                  className="pl-8"
-                />
-              </div>
-              <Select>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="national">National</SelectItem>
-                  <SelectItem value="international">International</SelectItem>
-                  <SelectItem value="sports">Sports</SelectItem>
-                  <SelectItem value="entertainment">Entertainment</SelectItem>
-                  <SelectItem value="technology">Technology</SelectItem>
-                  <SelectItem value="business">Business</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="All Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+        <ArticleFilters categoriesList={categoriesList} />
 
         {/* Articles Table */}
         <Card>
