@@ -4,7 +4,7 @@ import { useState } from "react";
 import { deleteArticle } from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +31,6 @@ interface ArticleActionsProps {
 }
 
 export function ArticleActions({ article }: ArticleActionsProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {

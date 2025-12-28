@@ -68,10 +68,11 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
       setIsLoading(true);
       try {
         const res = await getAllCategories();
-        if ("error" in res) setError(res.error);
+        if ("error" in res) setError(res.error as string);
         else if (Array.isArray(res)) setCategories(res);
-      } catch (err) {
+      } catch {
         setError("Failed to fetch categories");
+        toast.error("Failed to fetch categories");
       } finally {
         setIsLoading(false);
       }
@@ -133,7 +134,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
         } else {
           toast.error(result.error || "Error saving article");
         }
-      } catch (err) {
+      } catch {
         toast.error("An unexpected error occurred");
       }
     });
@@ -236,6 +237,11 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
           <div className="lg:col-span-2 space-y-6">
             <Card className="shadow-sm border-none md:border">
               <CardContent className="p-4 md:p-6 space-y-6">
+                {error && (
+                  <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-2 rounded-md text-sm mb-4">
+                    {error}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label className="text-base font-bold">Article Title *</Label>
                   <Input

@@ -5,8 +5,20 @@ import { articles } from "@/lib/db/schema/articles";
 import { revalidatePath } from "next/cache";
 import { slugify } from "@/lib/utils";
 import { auth } from "../../../../../../auth";
-import { categories, users } from "@/lib/db/schema";
+import { categories, users as usersSchema } from "@/lib/db/schema";
 import { and, desc, eq, ilike } from "drizzle-orm";
+
+type DbUser = typeof usersSchema.$inferSelect;
+
+async function validateAdmin() {
+  const session = await auth();
+  const user = session?.user as DbUser | undefined;
+
+  if (!user?.id || user.role !== "admin") {
+    throw new Error("Unauthorized: Admin access required");
+  }
+  return user;
+}
 
 export type ArticleStatus = "draft" | "published" | "archived";
 
@@ -23,8 +35,7 @@ export interface ArticleUpdateInput {
 
 export async function createArticle(formData: ArticleUpdateInput) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { error: "Unauthorized" };
+    const user = await validateAdmin();
 
     const slug = `${slugify(formData.title)}-${Math.random()
       .toString(36)
@@ -33,7 +44,7 @@ export async function createArticle(formData: ArticleUpdateInput) {
     await db.insert(articles).values({
       ...formData,
       slug,
-      authorId: session.user.id,
+      authorId: user.id as string,
       tags: formData.tags || [],
     });
 
@@ -62,7 +73,9 @@ export async function getAllArticles(filters?: {
     }
 
     if (filters?.status && filters.status !== "all") {
-      queryConditions.push(eq(articles.status, filters.status as any));
+      queryConditions.push(
+        eq(articles.status, filters.status as ArticleStatus)
+      );
     }
 
     const data = await db
@@ -74,11 +87,11 @@ export async function getAllArticles(filters?: {
         createdAt: articles.createdAt,
         updatedAt: articles.updatedAt,
         categoryName: categories.name,
-        authorName: users.name,
+        authorName: usersSchema.name,
       })
       .from(articles)
       .leftJoin(categories, eq(articles.categoryId, categories.id))
-      .leftJoin(users, eq(articles.authorId, users.id))
+      .leftJoin(usersSchema, eq(articles.authorId, usersSchema.id))
       .where(and(...queryConditions))
       .orderBy(desc(articles.createdAt));
 
@@ -99,8 +112,7 @@ export async function getArticleById(id: string) {
     });
 
     if (!data) {
-      console.warn(`[DEBUG] No article found for ID: ${id}`);
-      return null;
+      return { error: "No article found for ID" };
     }
 
     return data;
@@ -112,19 +124,20 @@ export async function getArticleById(id: string) {
 
 export async function deleteArticle(id: string) {
   try {
+    await validateAdmin();
+
     await db.delete(articles).where(eq(articles.id, id));
 
     revalidatePath("/admin/manage-news");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to delete article" };
   }
 }
 
 export async function updateArticle(id: string, formData: ArticleUpdateInput) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return { error: "Unauthorized" };
+    await validateAdmin();
 
     const slug = `${slugify(formData.title)}-${id.substring(0, 5)}`;
 
@@ -139,10 +152,10 @@ export async function updateArticle(id: string, formData: ArticleUpdateInput) {
 
     revalidatePath("/admin/manage-news");
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to update article" };
   }
 }
 
 export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
-export type ArticleSingleItem = Extract<ArticleListItem, any[]>[number];
+export type ArticleSingleItem = ArticleListItem extends (infer T)[] ? T : never;

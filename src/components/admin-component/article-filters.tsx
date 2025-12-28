@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -13,7 +13,17 @@ import {
 import { Search, Loader2 } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 
-export function ArticleFilters({ categoriesList }: { categoriesList: any[] }) {
+interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export function ArticleFilters({
+  categoriesList,
+}: {
+  categoriesList: CategoryItem[];
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
@@ -21,17 +31,7 @@ export function ArticleFilters({ categoriesList }: { categoriesList: any[] }) {
     searchParams.get("search") || ""
   );
 
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      if (searchValue !== (searchParams.get("search") || "")) {
-        updateFilters("search", searchValue);
-      }
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchValue]);
-
-  const updateFilters = (key: string, value: string) => {
+  const updateFilters = useCallback((key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "all") {
       params.set(key, value);
@@ -42,7 +42,17 @@ export function ArticleFilters({ categoriesList }: { categoriesList: any[] }) {
     startTransition(() => {
       router.push(`?${params.toString()}`);
     });
-  };
+  }, [router, searchParams]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchValue !== (searchParams.get("search") || "")) {
+        updateFilters("search", searchValue);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchValue, searchParams, updateFilters]);
 
   return (
     <Card className="mb-6">
