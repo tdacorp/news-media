@@ -20,6 +20,7 @@ import {
   Link as LinkIcon,
   X,
   ImageIcon,
+  File,
 } from "lucide-react";
 import { getAllCategories } from "@/app/(admin-panel)/admin/categories/_actions/actions";
 import { type categories as categoriesSchema } from "@/lib/db/schema/categories";
@@ -33,6 +34,7 @@ import {
 } from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
 import { articles } from "@/lib/db/schema";
 import Image from "next/image";
+import { getYouTubeID } from "@/lib/utils";
 
 type Category = typeof categoriesSchema.$inferSelect;
 type Article = typeof articles.$inferSelect;
@@ -137,6 +139,54 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
     });
   };
 
+  const renderUniversalVideoPreview = (url: string) => {
+    if (!url) return null;
+
+    // YouTube Check
+    const ytId = getYouTubeID(url);
+    if (ytId) {
+      return (
+        <iframe
+          className="absolute inset-0 w-full h-full"
+          src={`https://www.youtube.com/embed/${ytId}`}
+          allowFullScreen
+        />
+      );
+    }
+
+    // Facebook Check
+    if (url.includes("facebook.com") || url.includes("fb.watch")) {
+      return (
+        <iframe
+          src={`https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(
+            url
+          )}&show_text=0`}
+          className="absolute inset-0 w-full h-full"
+          allowFullScreen
+        />
+      );
+    }
+
+    // Instagram Check
+    if (url.includes("instagram.com")) {
+      const cleanUrl = url.split("?")[0]; // Query params hatane ke liye
+      return (
+        <iframe
+          src={`${cleanUrl}embed`}
+          className="absolute inset-0 w-full h-full"
+          allowFullScreen
+        />
+      );
+    }
+
+    // Fallback: Agar koi direct MP4 link ya generic link hai
+    return (
+      <div className="flex items-center justify-center h-full bg-secondary text-xs text-muted-foreground p-4 text-center">
+        Preview not available for this platform, but link will be saved.
+      </div>
+    );
+  };
+
   return (
     <main className="flex-1 bg-background pb-24 md:pb-8">
       <div className="container mx-auto p-4 md:p-8 max-w-5xl">
@@ -207,7 +257,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Short Summary</CardTitle>
+                <CardTitle className="text-lg">Short Summary *</CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
@@ -225,7 +275,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Media</CardTitle>
+                  <CardTitle className="text-lg">Media *</CardTitle>
                   <div className="flex p-1 bg-muted rounded-md scale-90">
                     <Button
                       variant={uploadMode === "file" ? "secondary" : "ghost"}
@@ -233,6 +283,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                       onClick={() => setUploadMode("file")}
                       className="h-7 px-2 text-xs"
                     >
+                      <File className="h-4 w-4" />
                       File
                     </Button>
                     <Button
@@ -241,6 +292,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                       onClick={() => setUploadMode("url")}
                       className="h-7 px-2 text-xs"
                     >
+                      <LinkIcon className="h-4 w-4" />
                       URL
                     </Button>
                   </div>
@@ -289,9 +341,8 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                     )}
                   </div>
                 )}
-
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold">Category</Label>
+                  <Label className="text-sm font-bold">Category *</Label>
                   <Select onValueChange={setCategoryId} value={categoryId}>
                     <SelectTrigger className="w-full">
                       <SelectValue
@@ -309,7 +360,6 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
                   <Label className="text-sm font-bold">Tags</Label>
                   <Input
@@ -318,16 +368,43 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                     onChange={(e) => setTags(e.target.value)}
                   />
                 </div>
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="video"
+                      className="flex items-center gap-2 text-sm font-bold"
+                    >
+                      <LinkIcon className="h-4 w-4" /> Video URL
+                    </Label>
+                    <Input
+                      id="video"
+                      value={videoUrl}
+                      onChange={(e) => setVideoUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/..."
+                      className="bg-background"
+                    />
+                  </div>
 
-                <div className="space-y-2 pt-2">
-                  <Label className="text-sm font-bold flex items-center gap-2">
-                    <LinkIcon className="h-3 w-3" /> Video Link
-                  </Label>
-                  <Input
-                    placeholder="YouTube URL"
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                  />
+                  {/* Video Preview Box */}
+                  {/* {videoUrl && getYouTubeID(videoUrl) && (
+                    <div className="relative aspect-video w-full rounded-xl overflow-hidden border bg-black shadow-inner">
+                      <iframe
+                        className="absolute top-0 left-0 w-full h-full"
+                        src={`https://www.youtube.com/embed/${getYouTubeID(
+                          videoUrl
+                        )}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  )} */}
+                  {videoUrl && (
+                    <div className="mt-3 relative aspect-video rounded-lg overflow-hidden border bg-black shadow-sm">
+                      {renderUniversalVideoPreview(videoUrl)}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
