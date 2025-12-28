@@ -8,7 +8,9 @@ import { auth } from "../../../../../../auth";
 import { categories, users } from "@/lib/db/schema";
 import { and, desc, eq, ilike } from "drizzle-orm";
 
-export async function createArticle(formData: {
+export type ArticleStatus = "draft" | "published" | "archived";
+
+export interface ArticleUpdateInput {
   title: string;
   content: string;
   excerpt?: string;
@@ -16,8 +18,10 @@ export async function createArticle(formData: {
   featuredImage?: string;
   videoUrl?: string;
   tags?: string[];
-  status: "draft" | "published";
-}) {
+  status: ArticleStatus;
+}
+
+export async function createArticle(formData: ArticleUpdateInput) {
   try {
     const session = await auth();
     if (!session?.user?.id) return { error: "Unauthorized" };
@@ -30,6 +34,7 @@ export async function createArticle(formData: {
       ...formData,
       slug,
       authorId: session.user.id,
+      tags: formData.tags || [],
     });
 
     revalidatePath("/admin/manage-news");
@@ -87,13 +92,20 @@ export async function getAllArticles(filters?: {
 export async function getArticleById(id: string) {
   try {
     const data = await db.query.articles.findFirst({
-      where: eq(articles.id, id),
+      where: (articles, { eq }) => eq(articles.id, id),
       with: {
         category: true,
       },
     });
+
+    if (!data) {
+      console.warn(`[DEBUG] No article found for ID: ${id}`);
+      return null;
+    }
+
     return data;
   } catch (error) {
+    console.error("[DATABASE ERROR]:", error);
     return { error: "Failed to fetch article" };
   }
 }
@@ -109,12 +121,18 @@ export async function deleteArticle(id: string) {
   }
 }
 
-export async function updateArticle(id: string, values: any) {
+export async function updateArticle(id: string, formData: ArticleUpdateInput) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return { error: "Unauthorized" };
+
+    const slug = `${slugify(formData.title)}-${id.substring(0, 5)}`;
+
     await db
       .update(articles)
       .set({
-        ...values,
+        ...formData,
+        slug,
         updatedAt: new Date(),
       })
       .where(eq(articles.id, id));

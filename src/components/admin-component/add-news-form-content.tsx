@@ -19,11 +19,21 @@ import { type categories as categoriesSchema } from "@/lib/db/schema/categories"
 import Tiptap from "../ui/text-ediotr";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { createArticle } from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
+import {
+  ArticleUpdateInput,
+  createArticle,
+  updateArticle,
+} from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
+import { articles } from "@/lib/db/schema";
 
 type Category = typeof categoriesSchema.$inferSelect;
+type Article = typeof articles.$inferSelect;
 
-export default function AddNewsFormContent() {
+interface AddNewsFormProps {
+  initialData?: Article | null;
+}
+
+export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -31,12 +41,13 @@ export default function AddNewsFormContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [title, setTitle] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [excerpt, setExcerpt] = useState("");
-  const [content, setContent] = useState("<p></p>");
-  const [tags, setTags] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
+  // States
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [categoryId, setCategoryId] = useState(initialData?.categoryId || "");
+  const [excerpt, setExcerpt] = useState(initialData?.excerpt || "");
+  const [content, setContent] = useState(initialData?.content || "<p></p>");
+  const [tags, setTags] = useState(initialData?.tags?.join(", ") || "");
+  const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl || "");
 
   useEffect(() => {
     async function fetchCats() {
@@ -61,39 +72,61 @@ export default function AddNewsFormContent() {
 
   const handleSubmit = async (status: "published" | "draft") => {
     if (!title || !categoryId || !excerpt || content === "<p></p>") {
-      toast.error("Please fill all required fields (*)")
+      toast.error("Please fill all required fields (*)");
       return;
     }
 
     startTransition(async () => {
-      const result = await createArticle({
+      const formData: ArticleUpdateInput = {
         title,
         excerpt,
         content,
         categoryId,
-        videoUrl,
-        tags: tags.split(",").map((t) => t.trim()).filter((t) => t !== ""),
-        status,
-      });
+        videoUrl: videoUrl || undefined,
+        tags: tags
+          ? tags
+              .split(",")
+              .map((t) => t.trim())
+              .filter((t) => t !== "")
+          : [],
+        status: status,
+      };
 
-      if (result.success) {
-        toast.success(`Article ${status === "published" ? "published" : "saved"}!`);
-        router.push("/admin/manage-news");
-      } else {
-        toast.error(result.error || "Failed to save article");
+      try {
+        let result;
+        // 2. Logic to decide between Update or Create
+        if (initialData?.id) {
+          result = await updateArticle(initialData.id, formData);
+        } else {
+          result = await createArticle(formData);
+        }
+
+        if (result.success) {
+          toast.success(
+            initialData ? "Article updated!" : "Article published!"
+          );
+          router.push("/admin/manage-news");
+          router.refresh(); // Refresh list page
+        } else {
+          toast.error(result.error || "Something went wrong");
+        }
+      } catch (err) {
+        toast.error("An error occurred while saving");
       }
-    })
-  }
+    });
+  };
 
   return (
     <main className="flex-1 overflow-y-auto bg-background">
       <div className="container mx-auto p-6 max-w-4xl">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground">
-            Add New Article
+            {initialData ? "Edit Article" : "Add New Article"}
           </h1>
           <p className="text-muted-foreground">
-            Create and publish a new news Article
+            {initialData
+              ? "Make changes to your article"
+              : "Create and publish a new news Article"}
           </p>
         </div>
 
@@ -147,15 +180,6 @@ export default function AddNewsFormContent() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="author">Author *</Label>
-                <Input
-                  id="author"
-                  placeholder="Author name"
-                  defaultValue="Admin User"
-                  disabled
-                />
-              </div>
             </div>
 
             {/* Excerpt */}
@@ -194,21 +218,10 @@ export default function AddNewsFormContent() {
               </label>
             </div>
 
-            {/* Content Editor Placeholder */}
+            {/* Content Editor */}
             <div className="space-y-2">
               <Label htmlFor="content">Article Content *</Label>
-              {/* <div className="border border-border rounded-lg p-4 bg-secondary/20 min-h-[300px]">
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <FileText className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    Rich Text Editor
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Advanced editor for formatting article content
-                  </p>
-                </div>
-              </div> */}
-              <Tiptap content={content} onChange={setContent}/>
+              <Tiptap content={content} onChange={setContent} />
             </div>
 
             {/* Tags */}
@@ -218,7 +231,7 @@ export default function AddNewsFormContent() {
                 id="tags"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
-                placeholder="Enter tags separated by commas...."
+                placeholder="tag1, tag2..."
               />
               <p className="text-xs text-muted-foreground">
                 Example: politics, economy, reform, etc.
@@ -227,44 +240,50 @@ export default function AddNewsFormContent() {
 
             {/* Video URL */}
             <div className="space-y-2">
-              <Label htmlFor="video">Video URL (optional)</Label>
-              <Input 
+              <Label htmlFor="video">Video URL</Label>
+              <Input
                 id="video"
                 value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)} 
-                placeholder="YouTube or Video URL...." />
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="YouTube or Video URL...."
+              />
             </div>
 
             {/* Actions */}
             <div className="pt-6 border-t border-border">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <Button variant="outline" className="w-full" disabled={isPending}>
+                {/* <Button
+                  variant="outline"
+                  className="w-full"
+                  disabled={isPending}
+                >
                   <Eye className="h-4 w-4 mr-2" />
                   Preview
-                </Button>
+                </Button> */}
 
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
+                <Button
+                  variant="outline"
+                  className="w-full"
                   disabled={isPending}
                   onClick={() => handleSubmit("draft")}
                 >
-                  {isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
                   Save Draft
                 </Button>
 
-                <Button variant="outline" className="w-full" disabled={isPending}>
-                  <Clock className="h-4 w-4 mr-2" />
-                  Schedule
-                </Button>
-
-                <Button 
+                <Button
                   className="w-full"
                   disabled={isPending}
                   onClick={() => handleSubmit("published")}
                 >
-                  {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Publish Now
+                  {isPending && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  {initialData ? "Update Article" : "Publish Now"}
                 </Button>
               </div>
             </div>

@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import Link from "next/link";
 
 interface ArticleActionsProps {
   article: {
@@ -51,17 +52,10 @@ export function ArticleActions({ article }: ArticleActionsProps) {
 
   return (
     <div className="flex justify-end gap-2">
-      <Button variant="ghost" size="icon" className="h-8 w-8" title="Perview">
-        <Eye className="h-4 w-4" />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsEditDialogOpen(true)}
-        title="Edit"
-      >
-        <Pencil className="h-4 w-4" />
+      <Button variant="ghost" size="icon" asChild title="Edit">
+        <Link href={`/admin/manage-news/edit/${article.id}`}>
+          <Pencil className="h-4 w-4" />
+        </Link>
       </Button>
 
       <AlertDialog>
@@ -75,7 +69,7 @@ export function ArticleActions({ article }: ArticleActionsProps) {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. this will permanently delete the
-              category{" "}
+              article{" "}
               <span className="font-bold text-foreground">
                 &quot;{article.title}&quot;
               </span>
