@@ -7,12 +7,12 @@ import { Input } from "../ui/input";
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "National", href: "/national" },
-  { name: "International", href: "/international" },
-  { name: "Sports", href: "/sports" },
-  { name: "Entertainment", href: "/entertainment" },
-  { name: "Technology", href: "/technology" },
-  { name: "Business", href: "/business" },
+  { name: "National", href: "/category/national" },
+  { name: "International", href: "/category/international" },
+  { name: "Sports", href: "/category/sports" },
+  { name: "Entertainment", href: "/category/entertainment" },
+  { name: "Technology", href: "/category/technology" },
+  { name: "Business", href: "/categories/business" },
 ];
 
 export default function NavLinks() {

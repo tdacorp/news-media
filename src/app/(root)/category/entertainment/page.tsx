@@ -1,15 +1,14 @@
 import AdvertiesmentComponent from "@/components/advertisesment/advertisement";
-import Navbar from "@/components/navbar/navbar";
 import SubscribeNewsForm from "@/components/suscribe-news-form/suscribe-news";
 import { LatestNewsSidebar } from "@/components/trending/latest-news-sidebar";
 import TrednginNews from "@/components/trending/trending-news-sidebar";
 import { Separator } from "@/components/ui/separator";
 
 
-export default function TechnologyPage(){
+export default function EntertainmentPage(){
     return (
         <div className="min-h-screen flex flex-col">
-            <Navbar />
+
             <main className="flex-1">
                 <div className="container mx-auto px-4 py-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -18,7 +17,7 @@ export default function TechnologyPage(){
 
                             <div className="mb-8">
                                 <h1 className="text-4xl font-bold text-foreground mb-2">Technology News</h1>
-                                <p className="text-muted-foreground">Latest updates on AI, gadgets, startups, and digital innovation</p>
+                                <p className="text-muted-foreground">Latest updates on MOvies & series and comedy and fun </p>
                             </div>
 
                             <Separator className="mb-8" />
@@ -27,7 +26,7 @@ export default function TechnologyPage(){
                             <div className="mb-12">
                                 {/* add News card catergu international News */}
                                 {/* <NewsCard  {...national[o] variant="large"}/> */}
-                                <h1>Technology News are comming soon....</h1>
+                                <h1>Enterntenment News are comming soon....</h1>
                             </div>
 
                             <AdvertiesmentComponent />
