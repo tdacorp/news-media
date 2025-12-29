@@ -1,3 +1,4 @@
+import Footer from "@/components/footer/footer";
 import Navbar from "@/components/navbar/navbar";
 
 export default function SiteLayout({
@@ -9,7 +10,7 @@ export default function SiteLayout({
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">{children}</main>
-      {/* Footer can be added here later */}
+      <Footer />
     </div>
   );
 }
