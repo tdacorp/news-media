@@ -122,6 +122,23 @@ export async function getArticleById(id: string) {
   }
 }
 
+export async function getArticleBySlug(slug: string) {
+  try {
+    const data = await db.query.articles.findFirst({
+      where: (articles, { eq, and }) => 
+        and(eq(articles.slug, slug), eq(articles.status, "published")),
+      with: {
+        category: true,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Fetch Article by Slug Error:", error);
+    return null;
+  }
+}
+
 export async function deleteArticle(id: string) {
   try {
     await validateAdmin();
@@ -157,5 +174,31 @@ export async function updateArticle(id: string, formData: ArticleUpdateInput) {
   }
 }
 
+export async function getPublicArticles() {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        featuredImage: articles.featuredImage,
+        createdAt: articles.createdAt,
+        categoryName: categories.name,
+      })
+      .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.status, "published")) 
+      .orderBy(desc(articles.createdAt))
+      .limit(40);
+
+    return data;
+  } catch (error) {
+    console.error("Public Fetch Error:", error);
+    return [];
+  }
+}
+
 export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
 export type ArticleSingleItem = ArticleListItem extends (infer T)[] ? T : never;
+export type PublicArticle = Awaited<ReturnType<typeof getPublicArticles>>[number];
