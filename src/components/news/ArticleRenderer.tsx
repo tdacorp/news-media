@@ -61,7 +61,7 @@ export function ArticleRenderer({ content }: ArticleRendererProps) {
         (acc, curr, idx) => {
           acc.push(curr);
 
-          // Har 3rd paragraph ke baad ek Ad Card daal dein
+          // after every 3rd paragraph
           if ((idx + 1) % 3 === 0 && idx !== reactElements.length - 1) {
             acc.push(
               <Card
