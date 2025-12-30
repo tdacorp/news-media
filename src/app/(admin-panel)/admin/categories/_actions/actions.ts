@@ -1,11 +1,26 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { articles } from "@/lib/db/schema";
 import { categories } from "@/lib/db/schema/categories";
-import { eq, desc } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { eq, desc, InferSelectModel } from "drizzle-orm";
+import { PublicArticle } from "../../manage-news/_actions/actions";
+import { updateTag } from "next/cache";
 
-// 1. Get All Categories
+export type CategoryWithArticles = InferSelectModel<typeof categories> & {
+  articles: PublicArticle[];
+};
+
+const slugify = (text: string) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-");
+};
+
+// Get All Categories
 export async function getAllCategories() {
   try {
     return await db
@@ -18,7 +33,45 @@ export async function getAllCategories() {
   }
 }
 
-// 2. Add New Category
+// Get Category With Articles
+export async function getCategoryWithArticles(
+  slug: string
+): Promise<CategoryWithArticles | null> {
+  try {
+    const data = await db.query.categories.findFirst({
+      where: eq(categories.slug, slug),
+      with: {
+        articles: {
+          where: eq(articles.status, "published"),
+          orderBy: [desc(articles.createdAt)],
+          limit: 25,
+        },
+      },
+    });
+    if (!data) return null;
+
+    const formattedArticles: PublicArticle[] = data.articles.map((article) => ({
+      id: article.id,
+      title: article.title,
+      slug: article.slug,
+      excerpt: article.excerpt,
+      featuredImage: article.featuredImage,
+      createdAt: article.createdAt,
+      categoryName: data.name,
+      categorySlug: data.slug,
+    }));
+
+    return {
+      ...data,
+      articles: formattedArticles,
+    };
+  } catch (error) {
+    console.error("Fetch Category Details Error:", error);
+    return null;
+  }
+}
+
+// Add New Category
 export async function addCategory(
   name: string,
   slug: string,
@@ -27,10 +80,13 @@ export async function addCategory(
   try {
     if (!name || !slug) return { error: "Name and Slug are required" };
 
+    const formattedSlug = slugify(slug || name);
+
     await db
       .insert(categories)
-      .values({ name, slug: slug.toLowerCase().trim(), description });
-    revalidatePath("/admin/categories");
+      .values({ name, slug: formattedSlug, description });
+
+    updateTag("/admin/categories");
     return { success: true };
   } catch (error) {
     if (
@@ -48,7 +104,7 @@ export async function addCategory(
   }
 }
 
-// 3. Delete Category
+// Delete Category
 export async function deleteCategory(
   id: string
 ): Promise<{ success?: boolean; error?: string }> {
@@ -56,7 +112,7 @@ export async function deleteCategory(
     if (!id) return { error: "ID is required" };
 
     await db.delete(categories).where(eq(categories.id, id));
-    revalidatePath("/admin/categories");
+    updateTag("/admin/categories");
     return { success: true };
   } catch (error) {
     if (
@@ -73,7 +129,7 @@ export async function deleteCategory(
   }
 }
 
-// 4. Update Category
+// Update Category
 export async function updateCategory(
   id: string,
   name: string,
@@ -84,17 +140,19 @@ export async function updateCategory(
     if (!id || !name || !slug)
       return { error: "ID, Name, and Slug are required" };
 
+    const formattedSlug = slugify(slug || name);
+
     await db
       .update(categories)
       .set({
         name,
-        slug: slug.toLowerCase().trim(),
+        slug: formattedSlug,
         description,
         updatedAt: new Date(),
       })
       .where(eq(categories.id, id));
 
-    revalidatePath("/admin/categories");
+    updateTag("/admin/categories");
     return { success: true };
   } catch (error) {
     if (

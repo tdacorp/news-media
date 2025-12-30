@@ -7,6 +7,7 @@ import { slugify } from "@/lib/utils";
 import { auth } from "../../../../../../auth";
 import { categories, users as usersSchema } from "@/lib/db/schema";
 import { and, desc, eq, ilike } from "drizzle-orm";
+import { cache } from "react";
 
 type DbUser = typeof usersSchema.$inferSelect;
 
@@ -174,7 +175,7 @@ export async function updateArticle(id: string, formData: ArticleUpdateInput) {
   }
 }
 
-export async function getPublicArticles() {
+export const getPublicArticles = cache(async () => {
   try {
     const data = await db
       .select({
@@ -185,19 +186,20 @@ export async function getPublicArticles() {
         featuredImage: articles.featuredImage,
         createdAt: articles.createdAt,
         categoryName: categories.name,
+        categorySlug: categories.slug,
       })
       .from(articles)
       .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.status, "published")) 
       .orderBy(desc(articles.createdAt))
-      .limit(40);
+      .limit(20);
 
     return data;
   } catch (error) {
     console.error("Public Fetch Error:", error);
     return [];
   }
-}
+})
 
 export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
 export type ArticleSingleItem = ArticleListItem extends (infer T)[] ? T : never;

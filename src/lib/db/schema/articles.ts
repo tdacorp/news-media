@@ -1,7 +1,7 @@
 import { relations } from "drizzle-orm";
 import { users } from "./user"; 
 import { categories } from "./categories";
-import { pgTable, text, varchar, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, uuid, pgEnum, index } from "drizzle-orm/pg-core";
 
 export const statusEnum = pgEnum("status", ["draft", "published", "archived"]);
 
@@ -26,6 +26,11 @@ export const articles = pgTable("articles", {
 
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => {
+  return {
+    statusIdx: index("status_idx").on(table.status), 
+    createdIdx: index("created_idx").on(table.createdAt), 
+  };
 });
 
 export const articlesRelations = relations(articles, ({ one }) => ({

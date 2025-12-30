@@ -44,6 +44,17 @@ export default async function ArticlePage({
     <div className="min-h-screen bg-background">
       {/* <BreakingNewsTicker /> */}
 
+      <div className="w-full bg-muted/50 rounded-xl border-2 border-dashed border-border p-8 flex items-center justify-center">
+        <div className="text-center">
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+            Advertisement
+          </span>
+          <div className="text-xl font-medium text-muted-foreground/40 italic">
+            Global Ad Space
+          </div>
+        </div>
+      </div>
+
       <main className="container mx-auto px-4 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Main Article Content */}
@@ -124,6 +135,17 @@ export default async function ArticlePage({
               </div>
             </div>
 
+            <div className="w-full bg-muted/50 rounded-xl border-2 border-dashed border-border p-8 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+                  Advertisement
+                </span>
+                <div className="text-xl font-medium text-muted-foreground/40 italic">
+                  Global Ad Space
+                </div>
+              </div>
+            </div>
+
             {/* Featured Image */}
             <div className="relative h-[400px] md:h-[500px] mb-8 rounded-lg overflow-hidden">
               <Image
@@ -158,6 +180,17 @@ export default async function ArticlePage({
 
             <Separator className="my-8" />
 
+            <div className="w-full bg-muted/50 rounded-xl border-2 border-dashed border-border p-8 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">
+                  Advertisement
+                </span>
+                <div className="text-xl font-medium text-muted-foreground/40 italic">
+                  Global Ad Space
+                </div>
+              </div>
+            </div>
+
             {/* Related Articles */}
             <div className="mt-12">
               {relatedArticles.length > 0 && (
@@ -167,7 +200,7 @@ export default async function ArticlePage({
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {relatedArticles.map((item) => (
-                      <NewsCard key={item.id} article={item} variant="small" />
+                      <NewsCard key={item.id} article={item} variant="list" />
                     ))}
                   </div>
                 </div>
