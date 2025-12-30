@@ -2,6 +2,7 @@ import parse, {
   domToReact,
   HTMLReactParserOptions,
   Element,
+  DOMNode,
 } from "html-react-parser";
 import { Card } from "@/components/ui/card";
 import React, { JSX } from "react";
@@ -18,7 +19,7 @@ export function ArticleRenderer({ content }: ArticleRendererProps) {
       if (domNode instanceof Element) {
         // A. Normal Image ko Next.js Image se badalna (Performance ke liye)
         if (domNode.name === "img") {
-          const { src, alt, width, height } = domNode.attribs;
+          const { src, alt } = domNode.attribs;
           return (
             <div className="relative w-full aspect-video my-8 rounded-2xl overflow-hidden shadow-lg">
               <Image
@@ -39,7 +40,7 @@ export function ArticleRenderer({ content }: ArticleRendererProps) {
               href={href}
               className="text-primary font-bold underline decoration-primary/30 underline-offset-4 hover:decoration-primary transition-all"
             >
-              {domToReact(domNode.children as any)}
+              {domToReact(domNode.children as DOMNode[], options)}
             </Link>
           );
         }
