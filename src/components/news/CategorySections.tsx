@@ -13,11 +13,11 @@ export function CategorySections({ articles }: { articles: PublicArticle[] }) {
       const catName = article.categoryName || "General";
       const catSlug = article.categorySlug || "general";
 
-      if (!acc[catName]) {
+      if (!acc[catName] && Object.keys(acc).length < 4) {
         acc[catName] = { items: [], slug: catSlug };
       }
 
-      if (acc[catName].items.length < 3) {
+      if (acc[catName] && acc[catName].items.length < 3) {
         acc[catName].items.push(article);
       }
       return acc;

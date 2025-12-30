@@ -17,11 +17,12 @@ export default async function Home() {
     );
   }
 
+  // Distribution optimized for 40 articles
   const heroNews = allArticles[0];
   const sideGridNews = allArticles.slice(1, 5);
   const horizontalWall = allArticles.slice(5, 9);
   const visualStoriesData = allArticles.slice(9, 15);
-  const infiniteWall = allArticles.slice(15);
+  const infiniteWall = allArticles.slice(15, 25); 
 
   return (
     <>

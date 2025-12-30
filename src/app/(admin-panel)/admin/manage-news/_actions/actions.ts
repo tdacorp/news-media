@@ -192,7 +192,7 @@ export const getPublicArticles = cache(async () => {
       .leftJoin(categories, eq(articles.categoryId, categories.id))
       .where(eq(articles.status, "published")) 
       .orderBy(desc(articles.createdAt))
-      .limit(20);
+      .limit(40);
 
     return data;
   } catch (error) {
