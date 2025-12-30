@@ -9,9 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogOut, Settings } from "lucide-react"
+import { Session } from "next-auth"
 import { signOut } from "next-auth/react"
 
-export default function UserMenu({ user }: { user: any }) {
+interface UserMenuProps {
+    user: Session["user"]
+}
+
+export default function UserMenu( {user}: UserMenuProps ) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
