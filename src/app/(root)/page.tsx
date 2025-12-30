@@ -27,7 +27,6 @@ export default async function Home() {
   return (
     <>
       <main className="min-h-screen bg-background">
-        <p className="text-9xl font-black my-40">edit by TDA</p>
         <div className="container mx-auto px-4 py-6 space-y-10">
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8">
