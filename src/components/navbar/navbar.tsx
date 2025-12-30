@@ -24,7 +24,7 @@ export default async function Navbar() {
                 <div className="flex items-center gap-3">
 
                     <div className="mx-auto">
-                        <NavLinks />
+                        <NavLinks session={session} />
                     </div>
                     <div className="hidden md:flex lg:flex">
                         <Input
