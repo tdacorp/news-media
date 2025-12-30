@@ -1,32 +1,33 @@
 import {
   getPublicArticles,
   type PublicArticle,
-} from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
-import { NewsCard } from "@/components/news/NewsCard";
-import { CategorySections } from "@/components/news/CategorySections";
-import { HomeSidebar } from "@/components/news/HomeSidebar";
-import { Separator } from "@/components/ui/separator";
-import { VisualStories } from "@/components/news/VisualStories";
+} from "@/app/(admin-panel)/admin/manage-news/_actions/actions"
+import { NewsCard } from "@/components/news/NewsCard"
+import { CategorySections } from "@/components/news/CategorySections"
+import { HomeSidebar } from "@/components/news/HomeSidebar"
+import { Separator } from "@/components/ui/separator"
+import { VisualStories } from "@/components/news/VisualStories"
 
 export default async function Home() {
-  const allArticles = (await getPublicArticles()) as PublicArticle[];
+  const allArticles = (await getPublicArticles()) as PublicArticle[]
 
   if (!allArticles || allArticles.length === 0) {
     return (
       <div className="text-center py-20 font-bold">No News Published Yet.</div>
-    );
+    )
   }
 
   // Distribution optimized for 40 articles
-  const heroNews = allArticles[0];
-  const sideGridNews = allArticles.slice(1, 5);
-  const horizontalWall = allArticles.slice(5, 9);
-  const visualStoriesData = allArticles.slice(9, 15);
-  const infiniteWall = allArticles.slice(15, 25); 
+  const heroNews = allArticles[0]
+  const sideGridNews = allArticles.slice(1, 5)
+  const horizontalWall = allArticles.slice(5, 9)
+  const visualStoriesData = allArticles.slice(9, 15)
+  const infiniteWall = allArticles.slice(15, 25)
 
   return (
     <>
       <main className="min-h-screen bg-background">
+        <p className="text-9xl font-black my-40">edit by TDA</p>
         <div className="container mx-auto px-4 py-6 space-y-10">
           <section className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8">
@@ -117,5 +118,5 @@ export default async function Home() {
         </div>
       </main>
     </>
-  );
+  )
 }
