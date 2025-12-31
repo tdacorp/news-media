@@ -19,8 +19,8 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">1. Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Trisai aankh News Rajgarh ("we," "us," or "our") operates the website. This page informs you of our policies
-                regarding the collection, use, and disclosure of personal data when you use our service.
+                {`Trisai aankh News Rajgarh ("we," "us," or "our") operates the website. This page informs you of our policies
+                regarding the collection, use, and disclosure of personal data when you use our service.`}
               </p>
             </section>
 
@@ -63,9 +63,9 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">4. Security of Data</h2>
               <p className="text-muted-foreground leading-relaxed">
-                The security of your data is important to us, but remember that no method of transmission over the
+                {`The security of your data is important to us, but remember that no method of transmission over the
                 Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable
-                means to protect your Personal Data, we cannot guarantee its absolute security.
+                means to protect your Personal Data, we cannot guarantee its absolute security.`}
               </p>
             </section>
 
@@ -74,8 +74,8 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">5. Changes to This Privacy Policy</h2>
               <p className="text-muted-foreground leading-relaxed">
-                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new
-                Privacy Policy on this page and updating the "effective date" at the top of this Privacy Policy.
+                {`We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new
+                Privacy Policy on this page and updating the "effective date" at the top of this Privacy Policy.`}
               </p>
             </section>
 

@@ -57,26 +57,60 @@ export default function AdvertisePage() {
 
         {/* Why Advertise */}
         <div className="grid md:grid-cols-4 gap-6 mb-12">
-          <div className="bg-card border border-border rounded-lg p-6 text-center">
-            <Users className="w-12 h-12 text-primary mx-auto mb-4" />
+          <div
+            className="
+            group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            "
+
+          >
+            <Users className="w-12 h-12 text-primary mx-auto mb-4 
+            transition-transform duration-300
+            group-hover:scale-110"
+            />
             <h3 className="font-bold text-foreground mb-2">100K+ Readers</h3>
             <p className="text-sm text-muted-foreground">Active audience across Rajgarh</p>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6 text-center">
-            <Target className="w-12 h-12 text-primary mx-auto mb-4" />
+          <div className="
+            group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
+            <Target className="w-12 h-12 text-primary mx-auto mb-4 transition-transform duration-300
+            group-hover:scale-110" />
             <h3 className="font-bold text-foreground mb-2">Targeted Reach</h3>
             <p className="text-sm text-muted-foreground">Category-specific placements</p>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6 text-center">
-            <TrendingUp className="w-12 h-12 text-primary mx-auto mb-4" />
+          <div className="
+            group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
+            <TrendingUp className="w-12 h-12 text-primary mx-auto mb-4 
+            transition-transform duration-300
+             group-hover:scale-110" />
             <h3 className="font-bold text-foreground mb-2">High Engagement</h3>
             <p className="text-sm text-muted-foreground">Quality traffic and interactions</p>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6 text-center">
-            <BarChart3 className="w-12 h-12 text-primary mx-auto mb-4" />
+          <div className="
+            group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
+            <BarChart3 className="w-12 h-12 text-primary mx-auto mb-4 transition-transform duration-300
+                                group-hover:scale-110" />
             <h3 className="font-bold text-foreground mb-2">Detailed Analytics</h3>
             <p className="text-sm text-muted-foreground">Track ad performance</p>
           </div>
@@ -92,8 +126,8 @@ export default function AdvertisePage() {
               <div
                 key={pkg.name}
                 className={`rounded-lg border p-8 transition-all duration-300 ease-out transform ${pkg.featured
-                    ? "bg-primary/5 border-primary shadow-lg scale-105"
-                    : "bg-card border-border hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]"
+                  ? "bg-primary/5 border-primary shadow-lg scale-105"
+                  : "bg-card border-border hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02]"
                   }`}
 
               >

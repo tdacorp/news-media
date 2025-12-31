@@ -102,24 +102,39 @@ export default function CompanyPage() {
 
         <Separator className="my-12" />
 
-        {/* Team Stats
-        <div>
+        {/* Team Stats */}
+         <div> 
           <h2 className="text-3xl font-bold text-foreground mb-8">Our Team</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-card border border-border rounded-lg p-8 text-center">
-              <div className="text-4xl font-bold text-primary mb-2">50+</div>
+            <div className="group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
+              <div className="text-4xl font-bold text-primary mb-2">2</div>
               <p className="text-muted-foreground">Dedicated Journalists</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-8 text-center">
-              <div className="text-4xl font-bold text-primary mb-2">100K+</div>
+            <div className="group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
+              <div className="text-4xl font-bold text-primary mb-2">5K+</div>
               <p className="text-muted-foreground">Active Readers</p>
             </div>
-            <div className="bg-card border border-border rounded-lg p-8 text-center">
+            <div className="group bg-card border border-border rounded-xl p-6 text-center
+            transition-all duration-300 ease-out
+            hover:-translate-y-1
+            hover:shadow-1xl
+            hover:border-primary/50
+            ">
               <div className="text-4xl font-bold text-primary mb-2">24/7</div>
               <p className="text-muted-foreground">News Coverage</p>
             </div>
           </div>
-        </div> */}
+        </div> 
       </main>
 
       <Footer />
