@@ -126,7 +126,7 @@ export async function getArticleById(id: string) {
 export async function getArticleBySlug(slug: string) {
   try {
     const data = await db.query.articles.findFirst({
-      where: (articles, { eq, and }) => 
+      where: (articles, { eq, and }) =>
         and(eq(articles.slug, slug), eq(articles.status, "published")),
       with: {
         category: true,
@@ -190,7 +190,7 @@ export const getPublicArticles = cache(async () => {
       })
       .from(articles)
       .leftJoin(categories, eq(articles.categoryId, categories.id))
-      .where(eq(articles.status, "published")) 
+      .where(eq(articles.status, "published"))
       .orderBy(desc(articles.createdAt))
       .limit(40);
 
@@ -199,8 +199,59 @@ export const getPublicArticles = cache(async () => {
     console.error("Public Fetch Error:", error);
     return [];
   }
-})
+});
+
+export const getLatestNotifications = async () => {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        createdAt: articles.createdAt,
+      })
+      .from(articles)
+      .where(eq(articles.status, "published"))
+      .orderBy(desc(articles.createdAt))
+      .limit(5);
+
+    return data;
+  } catch (error) {
+    console.error("Notification Fetch Error:", error);
+    return [];
+  }
+};
+
+export async function searchPublicArticles(query: string) {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        createdAt: articles.createdAt,
+        categoryName: categories.name,
+      })
+      .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .where(
+        and(
+          eq(articles.status, "published"),
+          ilike(articles.title, `%${query}%`)
+        )
+      )
+      .orderBy(desc(articles.createdAt))
+      .limit(8);
+
+    return data;
+  } catch (error) {
+    console.error("Public Search Error:", error);
+    return [];
+  }
+}
 
 export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
 export type ArticleSingleItem = ArticleListItem extends (infer T)[] ? T : never;
-export type PublicArticle = Awaited<ReturnType<typeof getPublicArticles>>[number];
+export type PublicArticle = Awaited<
+  ReturnType<typeof getPublicArticles>
+>[number];
