@@ -22,9 +22,9 @@ export default async function NavUserMenu() {
         asChild
         variant="destructive"
         size="sm"
-        className="h-8 font-bold uppercase italic skew-x-[-10deg]"
+        className="h-8 font-bold skew-x-[-10deg]"
       >
-        <Link href="/login">Login</Link>
+        <Link href="/login">Log In</Link>
       </Button>
     );
   }
