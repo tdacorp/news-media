@@ -45,6 +45,7 @@ interface TiptapProps {
 }
 
 const Tiptap = ({ content, onChange }: TiptapProps) => {
+  const [language, setLanguage] = useState<"en" | "hi">("en")
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -60,6 +61,7 @@ const Tiptap = ({ content, onChange }: TiptapProps) => {
       attributes: {
         class:
           "prose dark:prose-invert prose-sm sm:prose-base focus:outline-none max-w-none px-4 py-3 min-h-[300px]",
+        lang: language,
       },
     },
     onUpdate: ({ editor }) => {
@@ -72,7 +74,10 @@ const Tiptap = ({ content, onChange }: TiptapProps) => {
     <div className="bg-background relative rounded-lg border shadow-sm">
       {editor && (
         <>
-          <ToolBar editor={editor} />
+          <ToolBar editor={editor}
+            language={language}
+            setLanguage={setLanguage}
+          />
           <BubbleMenu editor={editor} />
           <FloatingMenu editor={editor} />
         </>
@@ -142,7 +147,16 @@ function LinkComponent({
   );
 }
 
-const ToolBar = ({ editor }: { editor: Editor }) => {
+const ToolBar = ({
+  editor,
+  language,
+  setLanguage,
+}: {
+  editor: Editor;
+  language: "en" | "hi";
+  setLanguage: (v: "en" | "hi") => void;
+}) => {
+
   const editorState = useEditorState({
     editor,
     selector: (ctx) => {
@@ -189,6 +203,7 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
         isHeading5: e.isActive("heading", { level: 5 }) ?? false,
         isHeading6: e.isActive("heading", { level: 6 }) ?? false,
         isParagraph: e.isActive("paragraph") ?? false,
+
       };
     },
   });
@@ -225,27 +240,47 @@ const ToolBar = ({ editor }: { editor: Editor }) => {
     <>
       <div
         className={
-          "bg-bakground stricky top-0 z-10 flex flex-wrap item-center gap-1 border-b p-2"
+          "bg-bakground stricky top-0 z-10 flex flex-wrap items-center gap-1 border-b p-2"
         }
       >
+        {/* language */}
+
+        <Select
+          value={language}
+          onValueChange={(v) => setLanguage(v as "en" | "hi")}
+        >
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Language" />
+          </SelectTrigger>
+
+          <SelectContent>
+            <SelectItem value="en">English</SelectItem>
+            <SelectItem value="hi">Hindi</SelectItem>
+          </SelectContent>
+        </Select>
+
+
+
+        {/* heading */}
+
         <Select
           onValueChange={handleHeadinChange}
           value={
             editorState.isHeading1
               ? "heading1"
               : editorState.isHeading2
-              ? "heading2"
-              : editorState.isHeading3
-              ? "heading3"
-              : editorState.isHeading4
-              ? "heading4"
-              : editorState.isHeading5
-              ? "heading5"
-              : editorState.isHeading6
-              ? "heading6"
-              : editorState.isParagraph
-              ? "paragraph"
-              : "paragraph"
+                ? "heading2"
+                : editorState.isHeading3
+                  ? "heading3"
+                  : editorState.isHeading4
+                    ? "heading4"
+                    : editorState.isHeading5
+                      ? "heading5"
+                      : editorState.isHeading6
+                        ? "heading6"
+                        : editorState.isParagraph
+                          ? "paragraph"
+                          : "paragraph"
           }
         >
           <SelectTrigger className="w-[180px]">

@@ -163,3 +163,12 @@
     @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-all;
   }
 }
+
+.prose {
+  font-family: var(--font-geist-sans);
+}
+
+.prose[lang="hi"] {
+  font-family: var(--font-hindi);
+}
+
