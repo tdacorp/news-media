@@ -10,14 +10,12 @@ const footerLinks = {
     company: [
         { name: "About us", href: "/about" },
         { name: "Contact", href: "/contact" },
-        { name: "Careers", href: "/careers" },
-        { name: "Adverties", href: "/adverties" },
+        { name: "Company", href: "/company" },
+        { name: "Advertise", href: "/advertise" },
     ],
     legal: [
         { name: "Privacy Policy", href: "/privacy" },
         { name: "Terms of Services", href: "/terms" },
-        { name: "Cookies Policy", href: "/cookies" },
-        { name: "Disclaimer", href: "/disclaimer" },
     ],
     categories: [
         { name: "National", href: "/category/national" },
@@ -44,7 +42,7 @@ export default function Footer() {
                                 className="rounded-lg transition-transform duration-300 hover:scale-105"
                             />
                             <span className="text-xl font-bold text-foreground">
-                                Tisari Aankh Rajgarh
+                                Teesri Aankh Rajgarh
                             </span>
                         </div>
 
@@ -56,7 +54,7 @@ export default function Footer() {
                         <div className="flex space-x-2">
                             <Button variant="outline" size="icon" className="h-9 w-9" asChild>
                                 <Link
-                                    href="https://facebook.com/yourpage"
+                                    href="https://www.facebook.com/profile.php?id=61555656306785"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="Facebook"
@@ -67,7 +65,7 @@ export default function Footer() {
 
                             <Button variant="outline" size="icon" className="h-9 w-9" asChild>
                                 <Link
-                                    href="https://instagram.com/yourpage"
+                                    href="https://www.instagram.com/rajeshmadadgar7844/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="Instagram"
@@ -78,7 +76,7 @@ export default function Footer() {
 
                             <Button variant="outline" size="icon" className="h-9 w-9" asChild>
                                 <Link
-                                    href="https://youtube.com/@yourchannel"
+                                    href="https://www.youtube.com/@madadgartisriaankhbharat7014/featured"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label="YouTube"
