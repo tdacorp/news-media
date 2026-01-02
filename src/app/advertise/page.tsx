@@ -62,7 +62,7 @@ export default function AdvertisePage() {
             group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             "
 
@@ -79,7 +79,7 @@ export default function AdvertisePage() {
             group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
             <Target className="w-12 h-12 text-primary mx-auto mb-4 transition-transform duration-300
@@ -92,7 +92,7 @@ export default function AdvertisePage() {
             group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
             <TrendingUp className="w-12 h-12 text-primary mx-auto mb-4 
@@ -106,7 +106,7 @@ export default function AdvertisePage() {
             group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
             <BarChart3 className="w-12 h-12 text-primary mx-auto mb-4 transition-transform duration-300
@@ -153,7 +153,7 @@ export default function AdvertisePage() {
                 </ul>
                 <Link href="/contact">
                   <Button className="w-full" variant={pkg.featured ? "default" : "outline"}>
-                    Get Contact
+                    Gontact Us
                   </Button>
                 </Link>
               </div>

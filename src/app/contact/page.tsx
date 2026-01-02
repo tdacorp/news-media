@@ -92,8 +92,7 @@ export default function ContactPage() {
             </div>
 
             {/* Google Map */}
-            <div className="rounded-lg overflow-hidden border border-border h-64">
-              {/* Google Map */}
+            <div>
               <div className="rounded-lg overflow-hidden border border-border h-64">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7094.9846192483365!2d76.61034081703858!3d27.235085068398277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39727d21db10519f%3A0x73b0d1b30e68ef3b!2sAshirwad%20Garden!5e0!3m2!1sen!2sin!4v1767164628790!5m2!1sen!2sin"

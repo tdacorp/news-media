@@ -109,7 +109,7 @@ export default function CompanyPage() {
             <div className="group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
               <div className="text-4xl font-bold text-primary mb-2">2</div>
@@ -118,7 +118,7 @@ export default function CompanyPage() {
             <div className="group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
               <div className="text-4xl font-bold text-primary mb-2">5K+</div>
@@ -127,7 +127,7 @@ export default function CompanyPage() {
             <div className="group bg-card border border-border rounded-xl p-6 text-center
             transition-all duration-300 ease-out
             hover:-translate-y-1
-            hover:shadow-1xl
+            hover:shadow-xl
             hover:border-primary/50
             ">
               <div className="text-4xl font-bold text-primary mb-2">24/7</div>

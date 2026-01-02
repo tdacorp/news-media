@@ -64,7 +64,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">4. Limitations</h2>
               <p className="text-muted-foreground leading-relaxed">
-               {` In no event shall NewsHub Rajgarh or its suppliers be liable for any damages (including, without
+               {` In no event shall Teesri Aankh News Rajgarh or its suppliers be liable for any damages (including, without
                 limitation, damages for loss of data or profit, or due to business interruption) arising out of the use
                 or inability to use the materials on NewsHub Rajgarh's website.`}
               </p>
