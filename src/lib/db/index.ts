@@ -8,7 +8,14 @@ neonConfig.fetchConnectionCache = true;
 //   neonConfig.webSocketConstructor = ws;
 // }
 
-const sql = neon(process.env.DATABASE_URL!);
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error("Critical Error: DATABASE_URL is not set!");
+}
+
+// const sql = neon(process.env.DATABASE_URL!);
+const sql = neon(connectionString || "");
 export const db = drizzle(sql, { schema });
 // const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 // export const db = drizzle(pool, { schema });

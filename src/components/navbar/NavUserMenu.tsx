@@ -1,4 +1,4 @@
-import { auth, signOut } from "../../../auth";
+import { auth } from "../../../auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { LayoutDashboard, LogOut, User } from "lucide-react";
+import { handleSignOut } from "@/lib/actions/auth/logout";
 
 export default async function NavUserMenu() {
   const session = await auth();
@@ -78,10 +79,7 @@ export default async function NavUserMenu() {
 
         {/* Sign Out Logic */}
         <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
+          action={handleSignOut}
         >
           <DropdownMenuItem className="cursor-pointer p-2.5 font-medium">
             <button
