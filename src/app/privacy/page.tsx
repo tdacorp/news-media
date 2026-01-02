@@ -87,7 +87,7 @@ export default function PrivacyPage() {
                 If you have any questions about this Privacy Policy, please contact us at:
               </p>
               <div className="mt-4 space-y-2">
-                <p className="text-muted-foreground">Email: trisari@newsrajgarh.com</p>
+                <p className="text-muted-foreground">Email: info@teesriaankh@gmail.com</p>
                 <p className="text-muted-foreground">Address: Rajgarh , Alwar District Rajasthan</p>
               </div>
             </section>

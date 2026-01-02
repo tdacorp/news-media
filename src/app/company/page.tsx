@@ -15,7 +15,7 @@ export default function CompanyPage() {
         {/* Page Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Company Information</h1>
-          <p className="text-xl text-muted-foreground">Trisai aankh News Rajgarh - Leading News Platform of Rajgarh , Alwar District</p>
+          <p className="text-xl text-muted-foreground">Madadgar Teesri aankh News Rajgarh - Leading News Platform of Rajgarh , Alwar District</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 mb-12">
@@ -25,7 +25,7 @@ export default function CompanyPage() {
             <div className="space-y-6">
               <div className="bg-card border border-border rounded-lg p-6">
                 <h3 className="font-bold text-foreground mb-2">Company Name</h3>
-                <p className="text-muted-foreground">Trisai aankh News Rajgarh Media Pvt. Ltd.</p>
+                <p className="text-muted-foreground">Madadgar Teesri aankh News Rajgarh Media Pvt. Ltd.</p>
               </div>
 
               <div className="bg-card border border-border rounded-lg p-6">

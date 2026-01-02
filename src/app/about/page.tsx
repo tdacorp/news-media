@@ -12,7 +12,7 @@ export default function AboutPage() {
             <main className="container mx-auto px-4 py-12">
                 {/* Page Header */}
                 <div className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">About Trisari Aankh News Rajgarh</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">About Teesri Aankh News Rajgarh</h1>
                     <h2 className="text-3xl font-bold tracking-tight text-foreground mb-8">Your trusted source for Rajgarh Subdistrict news and near villages </h2>
                 </div>
 
@@ -143,9 +143,9 @@ export default function AboutPage() {
                             ">
 
                         <p className="text-muted-foreground leading-relaxed mb-4">
-                            NewsHub Rajgarh was founded with a simple belief: that every community deserves access to accurate,
+                            {`Madadgar Teesri Aankh News Rajgarh was founded with a simple belief: that every community deserves access to accurate,
                             reliable news. Starting from Rajgarh district, we have grown to become a trusted news source for thousands
-                            of readers across the region.
+                            of readers across the region.`}
                         </p>
                         <p className="text-muted-foreground leading-relaxed mb-4">
                             Our team of experienced journalists and reporters work tirelessly to cover the stories that matter - from
@@ -153,7 +153,7 @@ export default function AboutPage() {
                             pride in our commitment to unbiased reporting and journalistic integrity.
                         </p>
                         <p className="text-muted-foreground leading-relaxed">
-                            Today, NewsHub Rajgarh covers news across all major categories including National, International, Sports,
+                            Today, Teesri Aankh  News Rajgarh covers news across all major categories including National, International, Sports,
                             Entertainment, Technology, and Business, while maintaining our core focus on local Rajgarh district
                             developments.
                         </p>

@@ -16,7 +16,7 @@ export default function ContactPage() {
         {/* Page Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">Contact Us</h1>
-          <p className="text-xl text-muted-foreground">Get in touch with Trisari aankh News Rajgarh</p>
+          <p className="text-xl text-muted-foreground">Get in touch with Teesri aankh News Rajgarh</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
@@ -64,11 +64,11 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-foreground mb-2">Email Addresses</h3>
                     <p className="text-muted-foreground">
-                      General: info@newshubrajgarh.com
+                      General: info@teesriaankh.com
                       <br />
-                      News Tips: news@newshubrajgarh.com
+                      News Tips: news@teesriaankh.com
                       <br />
-                      Support: support@newshubrajgarh.com
+                      Support: support@teesriaankh.com
                     </p>
                   </div>
                 </div>

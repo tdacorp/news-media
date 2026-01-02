@@ -30,7 +30,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold text-foreground mb-4">2. Use License</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 {`Permission is granted to temporarily download one copy of the materials (information or software) on
-                Trisari aankh news  Rajgarh's website for personal, non-commercial transitory viewing only. This is the grant of a
+                Teesri Aankh  news  Rajgarh's website for personal, non-commercial transitory viewing only. This is the grant of a
                 license, not a transfer of title, and under this license you may not:`}
               </p>
               <ul className="space-y-2 ml-4">
@@ -52,7 +52,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">3. Disclaimer</h2>
               <p className="text-muted-foreground leading-relaxed">
-                {`The materials on Trisari aankh News Rajgarh's website are provided on an 'as is' basis. Trisai aankh News Rajgarh makes no
+                {`The materials on Teesri Aankh  News Rajgarh's website are provided on an 'as is' basis. Teesri Aankh  News Rajgarh makes no
                 warranties, expressed or implied, and hereby disclaims and negates all other warranties including,
                 without limitation, implied warranties or conditions of merchantability, fitness for a particular
                 purpose, or non-infringement of intellectual property or other violation of rights.`}
@@ -76,7 +76,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold text-foreground mb-4">5. Accuracy of Materials</h2>
               <p className="text-muted-foreground leading-relaxed">
                 {`The materials appearing on Trisai aankh News Rajgarh's website could include technical, typographical, or
-                photographic errors. Trisai aankh News Rajgarh does not warrant that any of the materials on its website are
+                photographic errors. Teesri Aankh  News Rajgarh does not warrant that any of the materials on its website are
                 accurate, complete, or current. Trisai aankh News Rajgarh may make changes to the materials contained on its
                 website at any time without notice.`}
               </p>
@@ -111,7 +111,7 @@ export default function TermsPage() {
                 If you have any questions about these Terms of Service, please contact us at:
               </p>
               <div className="mt-4 space-y-2">
-                <p className="text-muted-foreground">Email: legal@newsrajgarh.com</p>
+                <p className="text-muted-foreground">Email: info@teesriaankh.com</p>
                 <p className="text-muted-foreground">Address: Rajgarh  Alwar District, Rajasthan </p>
               </div>
             </section>
