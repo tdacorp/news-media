@@ -53,7 +53,7 @@ export async function createArticle(formData: ArticleUpdateInput) {
     return { success: true };
   } catch (error) {
     console.error("Article Creation Error:", error);
-    return { error: "Failed to create article. Title might be duplicate." };
+    return { error: "Failed to create article." };
   }
 }
 

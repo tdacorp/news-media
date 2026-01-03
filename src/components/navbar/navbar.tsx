@@ -31,7 +31,7 @@ export default function Navbar() {
                 <NavSocilsLinks />
               </div>
               <Link
-                href="/login"
+                href="/register"
                 className="flex items-center gap-1 bg-primary px-3 py-1 rounded-sm text-[11px]"
               >
                 Sign In

@@ -6,6 +6,7 @@ import {
   Twitter,
   Bookmark,
   Calendar,
+  PlayCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { HomeSidebar } from "@/components/news/HomeSidebar";
 import { ArticleRenderer } from "@/components/news/ArticleRenderer";
+import { getYouTubeID } from "@/lib/utils";
 
 export default async function ArticlePage({
   params,
@@ -39,6 +41,10 @@ export default async function ArticlePage({
   const relatedArticles = allArticles
     .filter((a) => a.categoryName === article.category.name && a.slug !== slug)
     .slice(0, 3);
+
+  const videoUrl = article.videoUrl;
+  const ytId = videoUrl ? getYouTubeID(videoUrl) : null;
+  const isVideo = !!videoUrl && videoUrl.trim() !== "" && videoUrl !== " ";
 
   return (
     <div className="min-h-screen bg-background">
@@ -146,15 +152,48 @@ export default async function ArticlePage({
               </div>
             </div>
 
-            {/* Featured Image */}
-            <div className="relative h-[400px] md:h-[500px] mb-8 rounded-lg overflow-hidden">
-              <Image
-                src={article.featuredImage || "/placeholder.jpg"}
-                alt={article.title}
-                fill
-                className="object-cover"
-                priority
-              />
+            {/* MEDIA SECTION */}
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-black group">
+              {isVideo ? (
+                <div className="aspect-video w-full bg-black flex items-center justify-center">
+                  {ytId ? (
+                    <iframe
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`}
+                      title={article.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={videoUrl}
+                      controls
+                      poster={article.featuredImage || undefined} // Video load hone se pehle image dikhegi
+                      className="w-full h-full object-contain"
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="relative aspect-video md:h-[500px]">
+                  <Image
+                    src={article.featuredImage || "/placeholder.jpg"}
+                    alt={article.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    priority
+                  />
+                </div>
+              )}
+
+              {/* Optional: Overlay label for Video */}
+              {isVideo && (
+                <div className="absolute top-4 left-4 pointer-events-none">
+                  <Badge className="bg-black/60 backdrop-blur-md border-white/20 text-[10px] gap-1.5">
+                    <PlayCircle className="h-3 w-3 fill-white" /> EXCLUSIVE
+                    VIDEO
+                  </Badge>
+                </div>
+              )}
             </div>
 
             {/* Article Body Tiptap Content Rendering */}
