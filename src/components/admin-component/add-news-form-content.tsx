@@ -17,12 +17,9 @@ import {
   Loader2,
   Save,
   Upload,
-  Link as LinkIcon,
   X,
   ImageIcon,
-  File,
   VideoIcon,
-  Eye,
   Hash,
 } from "lucide-react";
 import { getAllCategories } from "@/app/(admin-panel)/admin/categories/_actions/actions";
@@ -131,7 +128,7 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
       } else {
         toast.error("Upload failed.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error uploading file.");
     } finally {
       setIsImgUploading(false);
