@@ -17,10 +17,10 @@ import {
   Loader2,
   Save,
   Upload,
-  Link as LinkIcon,
   X,
   ImageIcon,
-  File,
+  VideoIcon,
+  Hash,
 } from "lucide-react";
 import { getAllCategories } from "@/app/(admin-panel)/admin/categories/_actions/actions";
 import { type categories as categoriesSchema } from "@/lib/db/schema/categories";
@@ -35,6 +35,7 @@ import {
 import { articles } from "@/lib/db/schema";
 import Image from "next/image";
 import { getYouTubeID } from "@/lib/utils";
+import { uploadMedia } from "@/lib/actions/media/upload";
 
 type Category = typeof categoriesSchema.$inferSelect;
 type Article = typeof articles.$inferSelect;
@@ -57,11 +58,25 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
   const [excerpt, setExcerpt] = useState(initialData?.excerpt || "");
   const [content, setContent] = useState(initialData?.content || "<p></p>");
   const [tags, setTags] = useState(initialData?.tags?.join(", ") || "");
-  const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl || "");
+
+  // Featured Image States
   const [featuredImage, setFeaturedImage] = useState(
     initialData?.featuredImage || ""
   );
-  const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
+  const [imgUploadMode, setImgUploadMode] = useState<"file" | "url">("file");
+  const [isImgUploading, setIsImgUploading] = useState(false);
+
+  // Video States
+  const [videoUrl, setVideoUrl] = useState(initialData?.videoUrl || "");
+  const [vidUploadMode, setVidUploadMode] = useState<"file" | "url">("url");
+  const [isVidUploading, setIsVidUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"image" | "video">(
+    initialData?.videoUrl ? "video" : "image"
+  );
+
+  // --- Logic for Active Display Check ---
+  const isActuallyVideo =
+    activeTab === "video" && videoUrl && videoUrl.trim() !== "";
 
   useEffect(() => {
     async function fetchCats() {
@@ -80,16 +95,44 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
     fetchCats();
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "image" | "video"
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 3 * 1024 * 1024) {
-        toast.error("Image is too large! Please select an image under 3MB.");
-        return;
+    if (!file) return;
+
+    const maxSize = type === "video" ? 15 * 1024 * 1024 : 5 * 1024 * 1024;
+
+    // Initial checks
+    if (file.size > maxSize) {
+      toast.error(
+        `File too large! Max ${type === "video" ? "15MB" : "5MB"} allowed.`
+      );
+      return;
+    }
+
+    try {
+      if (type === "image") setIsImgUploading(true);
+      else setIsVidUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await uploadMedia(formData);
+
+      if (typeof res === "string") {
+        if (type === "image") setFeaturedImage(res);
+        else setVideoUrl(res);
+        toast.success(`${type} uploaded successfully!`);
+      } else {
+        toast.error("Upload failed.");
       }
-      const reader = new FileReader();
-      reader.onloadend = () => setFeaturedImage(reader.result as string);
-      reader.readAsDataURL(file);
+    } catch {
+      toast.error("Error uploading file.");
+    } finally {
+      setIsImgUploading(false);
+      setIsVidUploading(false);
     }
   };
 
@@ -180,22 +223,23 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
       );
     }
 
-    // Fallback: Agar koi direct MP4 link ya generic link hai
     return (
-      <div className="flex items-center justify-center h-full bg-secondary text-xs text-muted-foreground p-4 text-center">
-        Preview not available for this platform, but link will be saved.
-      </div>
+      <video
+        src={url}
+        controls
+        className="w-full h-full object-contain bg-black"
+      />
     );
   };
 
   return (
     <main className="flex-1 bg-background pb-24 md:pb-8">
-      <div className="container mx-auto p-4 md:p-8 max-w-5xl">
+      <div className="container mx-auto p-4 md:p-8 max-w-6xl">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight">
-              {initialData ? "Edit Story" : "Write New Story"}
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+              {initialData ? "Edit News" : "Create Story"}
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">
               {initialData
@@ -227,15 +271,15 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
               ) : (
                 <Upload className="h-4 w-4 mr-2" />
               )}
-              {initialData ? "Update Now" : "Publish Now"}
+              {initialData ? "Update Story" : "Publish Story"}
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="shadow-sm border-none md:border">
+          <div className="lg:col-span-8 space-y-6">
+            <Card className="shadow-sm border-none ring-1 ring-border md:border">
               <CardContent className="p-4 md:p-6 space-y-6">
                 {error && (
                   <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-2 rounded-md text-sm mb-4">
@@ -243,27 +287,31 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label className="text-base font-bold">Article Title *</Label>
+                  <Label className="text-sm font-bold uppercase text-muted-foreground">
+                    Headline
+                  </Label>
                   <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Breaking: New Policy Update 2024"
-                    className="text-lg py-6 focus-visible:ring-primary"
+                    placeholder="Enter catchy news headline..."
+                    className="text-2xl font-bold py-7 boder-none focus-visible:ring-1"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-base font-bold">Main Content *</Label>
-                  <div className="min-h-[400px] prose prose-sm max-w-none">
+                  <Label className="text-sm font-bold uppercase text-muted-foreground">
+                    Story Content
+                  </Label>
+                  <div className="min-h-[400px] rounded-md prose prose-sm max-w-none overflow-hidden">
                     <Tiptap content={content} onChange={setContent} />
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-none shadow-sm ring-1 ring-border">
               <CardHeader>
-                <CardTitle className="text-lg">Short Summary *</CardTitle>
+                <CardTitle className="text-sm">Short Summary </CardTitle>
               </CardHeader>
               <CardContent>
                 <Textarea
@@ -276,81 +324,220 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
             </Card>
           </div>
 
-          {/* Sidebar Area (Featured Image & Settings) */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader className="pb-3">
+          {/* RIGHT: SIDEBAR */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* --- MAIN MEDIA CARD --- */}
+            <Card
+              className={`overflow-hidden border-2 shadow-md bg-card transition-all duration-300 ${
+                isActuallyVideo ? "border-amber-500/50" : "border-primary/20"
+              }`}
+            >
+              <CardHeader className="bg-muted/30 pb-4 border-b pb-4">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Media *</CardTitle>
-                  <div className="flex p-1 bg-muted rounded-md scale-90">
-                    <Button
-                      variant={uploadMode === "file" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setUploadMode("file")}
-                      className="h-7 px-2 text-xs"
+                  <div className="space-y-0.5">
+                    <CardTitle className="text-xs font-bold uppercase tracking-widest">
+                      Media thumbnails
+                    </CardTitle>
+                    <p className="text-[10px] text-muted-foreground">
+                      Image is mandatory for thumbnails
+                    </p>
+                  </div>
+
+                  {/* IMPROVED TOGGLE BUTTONS (Segmented Control) */}
+                  <div className="flex bg-muted p-1 rounded-lg border shadow-sm scale-90">
+                    <button
+                      type="button"
+                      // onClick={() => {
+                      //   setVideoUrl("");
+                      //   setVidUploadMode("url");
+                      // }}
+                      onClick={() => setActiveTab("image")}
+                      className={`flex items-center gap-1.5 px-4 py-3 rounded-md text-[10px] font-bold transition-all ${
+                        activeTab === "image"
+                          ? "bg-background text-primary shadow-sm"
+                          : "text-muted-foreground"
+                      }`}
                     >
-                      <File className="h-4 w-4" />
-                      File
-                    </Button>
-                    <Button
-                      variant={uploadMode === "url" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setUploadMode("url")}
-                      className="h-7 px-2 text-xs"
+                      <ImageIcon className="h-3 w-3" /> IMAGE
+                    </button>
+                    <button
+                      type="button"
+                      // onClick={() => {
+                      //   if (!videoUrl) setVideoUrl(" ");
+                      //   setVidUploadMode("url");
+                      // }}
+                      onClick={() => setActiveTab("video")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] font-bold transition-all ${
+                        activeTab === "video"
+                          ? "bg-background text-primary shadow-sm"
+                          : "text-muted-foreground"
+                      }`}
                     >
-                      <LinkIcon className="h-4 w-4" />
-                      URL
-                    </Button>
+                      <VideoIcon className="h-3 w-3" /> VIDEO
+                    </button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {featuredImage ? (
-                  <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden border">
-                    <Image
-                      src={featuredImage}
-                      alt="Preview"
-                      fill
-                      className="object-cover"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-7 w-7 rounded-full"
-                      onClick={() => setFeaturedImage("")}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    {uploadMode === "file" ? (
-                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 border-muted-foreground/20">
-                        <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground font-medium">
-                          Upload Header Image
+
+              <CardContent className="pt-5 space-y-5">
+                {activeTab === "image" ? (
+                  <div className="animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase">
+                        Cover Image *
+                      </Label>
+                      <div className="flex gap-1 scale-75">
+                        <Button
+                          type="button"
+                          variant={
+                            imgUploadMode === "file" ? "secondary" : "ghost"
+                          }
+                          size="sm"
+                          onClick={() => setImgUploadMode("file")}
+                        >
+                          File
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={
+                            imgUploadMode === "url" ? "secondary" : "ghost"
+                          }
+                          size="sm"
+                          onClick={() => setImgUploadMode("url")}
+                        >
+                          URL
+                        </Button>
+                      </div>
+                    </div>
+                    {featuredImage ? (
+                      <div className="relative aspect-video rounded-lg overflow-hidden border">
+                        <Image
+                          src={featuredImage}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-7 w-7"
+                          onClick={() => setFeaturedImage("")}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : imgUploadMode === "file" ? (
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-primary/5">
+                        {isImgUploading ? (
+                          <Loader2 className="animate-spin text-primary" />
+                        ) : (
+                          <Upload className="h-5 w-5 text-primary" />
+                        )}
+                        <span className="text-[10px] font-bold mt-2">
+                          Upload Header
                         </span>
                         <input
                           type="file"
                           className="hidden"
                           accept="image/*"
-                          onChange={handleFileChange}
+                          onChange={(e) => handleFileUpload(e, "image")}
                         />
                       </label>
                     ) : (
                       <Input
-                        placeholder="Image Link..."
+                        placeholder="Paste image link..."
                         value={featuredImage}
                         onChange={(e) => setFeaturedImage(e.target.value)}
-                        className="text-sm"
+                        className="text-xs h-9"
                       />
                     )}
                   </div>
+                ) : (
+                  <div className="animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-[10px] font-bold text-muted-foreground uppercase">
+                        Featured Video
+                      </Label>
+                      <div className="flex gap-1 scale-75">
+                        <Button
+                          type="button"
+                          variant={
+                            vidUploadMode === "file" ? "secondary" : "ghost"
+                          }
+                          size="sm"
+                          onClick={() => setVidUploadMode("file")}
+                        >
+                          File
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={
+                            vidUploadMode === "url" ? "secondary" : "ghost"
+                          }
+                          size="sm"
+                          onClick={() => setVidUploadMode("url")}
+                        >
+                          URL
+                        </Button>
+                      </div>
+                    </div>
+                    {videoUrl && videoUrl.trim() !== "" && videoUrl !== " " ? (
+                      <div className="relative aspect-video rounded-lg overflow-hidden border bg-black group">
+                        {renderUniversalVideoPreview(videoUrl)}
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-7 w-7 z-10 opacity-0 group-hover:opacity-100"
+                          onClick={() => setVideoUrl(" ")}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : vidUploadMode === "file" ? (
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer bg-slate-50">
+                        {isVidUploading ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          <VideoIcon className="h-5 w-5" />
+                        )}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="video/*"
+                          onChange={(e) => handleFileUpload(e, "video")}
+                        />
+                      </label>
+                    ) : (
+                      <Input
+                        placeholder="YouTube/FB link..."
+                        value={videoUrl === " " ? "" : videoUrl}
+                        onChange={(e) => setVideoUrl(e.target.value)}
+                        className="text-xs h-9"
+                      />
+                    )}
+                    <p className="text-[9px] text-muted-foreground leading-tight italic">
+                      * Note: Featured image will still be used as the thumbnail
+                      in lists.
+                    </p>
+                  </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* --- SETTINGS CARD (Category & Tags) --- */}
+            <Card className="shadow-sm border-none md:border">
+              <CardHeader className="pb-3 border-b bg-muted/20">
+                <CardTitle className="text-xs font-bold uppercase tracking-widest">
+                  Classification
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4 space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold">Category *</Label>
+                  <Label className="text-xs font-bold">Category *</Label>
                   <Select onValueChange={setCategoryId} value={categoryId}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="h-10 border-primary/10 focus:ring-1">
                       <SelectValue
                         placeholder={
                           isLoading ? "Loading..." : "Select Category"
@@ -367,50 +554,16 @@ export default function AddNewsFormContent({ initialData }: AddNewsFormProps) {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-bold">Tags</Label>
-                  <Input
-                    placeholder="politics, technology..."
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-4 pt-2">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="video"
-                      className="flex items-center gap-2 text-sm font-bold"
-                    >
-                      <LinkIcon className="h-4 w-4" /> Video URL
-                    </Label>
+                  <Label className="text-xs font-bold">Tags</Label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                     <Input
-                      id="video"
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                      placeholder="https://www.youtube.com/..."
-                      className="bg-background"
+                      placeholder="politics, viral, cricket"
+                      value={tags}
+                      onChange={(e) => setTags(e.target.value)}
+                      className="pl-8 h-10"
                     />
                   </div>
-
-                  {/* Video Preview Box */}
-                  {/* {videoUrl && getYouTubeID(videoUrl) && (
-                    <div className="relative aspect-video w-full rounded-xl overflow-hidden border bg-black shadow-inner">
-                      <iframe
-                        className="absolute top-0 left-0 w-full h-full"
-                        src={`https://www.youtube.com/embed/${getYouTubeID(
-                          videoUrl
-                        )}`}
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                  )} */}
-                  {videoUrl && (
-                    <div className="mt-3 relative aspect-video rounded-lg overflow-hidden border bg-black shadow-sm">
-                      {renderUniversalVideoPreview(videoUrl)}
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>

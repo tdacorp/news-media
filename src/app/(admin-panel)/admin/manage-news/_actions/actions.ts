@@ -7,6 +7,7 @@ import { slugify } from "@/lib/utils";
 import { auth } from "../../../../../../auth";
 import { categories, users as usersSchema } from "@/lib/db/schema";
 import { and, desc, eq, ilike } from "drizzle-orm";
+import { cache } from "react";
 
 type DbUser = typeof usersSchema.$inferSelect;
 
@@ -52,7 +53,7 @@ export async function createArticle(formData: ArticleUpdateInput) {
     return { success: true };
   } catch (error) {
     console.error("Article Creation Error:", error);
-    return { error: "Failed to create article. Title might be duplicate." };
+    return { error: "Failed to create article." };
   }
 }
 
@@ -122,6 +123,23 @@ export async function getArticleById(id: string) {
   }
 }
 
+export async function getArticleBySlug(slug: string) {
+  try {
+    const data = await db.query.articles.findFirst({
+      where: (articles, { eq, and }) =>
+        and(eq(articles.slug, slug), eq(articles.status, "published")),
+      with: {
+        category: true,
+      },
+    });
+
+    return data;
+  } catch (error) {
+    console.error("Fetch Article by Slug Error:", error);
+    return null;
+  }
+}
+
 export async function deleteArticle(id: string) {
   try {
     await validateAdmin();
@@ -157,5 +175,83 @@ export async function updateArticle(id: string, formData: ArticleUpdateInput) {
   }
 }
 
+export const getPublicArticles = cache(async () => {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        featuredImage: articles.featuredImage,
+        createdAt: articles.createdAt,
+        categoryName: categories.name,
+        categorySlug: categories.slug,
+      })
+      .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .where(eq(articles.status, "published"))
+      .orderBy(desc(articles.createdAt))
+      .limit(40);
+
+    return data;
+  } catch (error) {
+    console.error("Public Fetch Error:", error);
+    return [];
+  }
+});
+
+export const getLatestNotifications = async () => {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        createdAt: articles.createdAt,
+      })
+      .from(articles)
+      .where(eq(articles.status, "published"))
+      .orderBy(desc(articles.createdAt))
+      .limit(5);
+
+    return data;
+  } catch (error) {
+    console.error("Notification Fetch Error:", error);
+    return [];
+  }
+};
+
+export async function searchPublicArticles(query: string) {
+  try {
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        createdAt: articles.createdAt,
+        categoryName: categories.name,
+      })
+      .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .where(
+        and(
+          eq(articles.status, "published"),
+          ilike(articles.title, `%${query}%`)
+        )
+      )
+      .orderBy(desc(articles.createdAt))
+      .limit(8);
+
+    return data;
+  } catch (error) {
+    console.error("Public Search Error:", error);
+    return [];
+  }
+}
+
 export type ArticleListItem = Awaited<ReturnType<typeof getAllArticles>>;
 export type ArticleSingleItem = ArticleListItem extends (infer T)[] ? T : never;
+export type PublicArticle = Awaited<
+  ReturnType<typeof getPublicArticles>
+>[number];
