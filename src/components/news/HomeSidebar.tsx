@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { TrendingUp, Clock, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNowStrict } from "date-fns";
 import { type PublicArticle } from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
