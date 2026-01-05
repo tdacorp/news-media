@@ -3,38 +3,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
+import { sendContactMail } from "@/lib/actions/contact/sendmailcontact"
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
-  })
-
   const [submitted, setSubmitted] = useState(false)
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitted(true)
-
-    setTimeout(() => setSubmitted(false), 4000)
-
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    })
-  }
+  const [loading, setLoading] = useState(false)
 
   return (
     <div className="w-full">
@@ -48,83 +21,97 @@ export default function ContactForm() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 border p-8">
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Name</label>
-          <input
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your name"
-            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
+      <form
+        action={async (formData) => {
+          if (loading) return  
 
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="your@email.com"
-            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
+          setLoading(true)
+          await sendContactMail(formData)
 
-        {/* Phone */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Phone</label>
-          <input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="+91 XXXXX XXXXX"
-            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
+          setSubmitted(true)
+          setTimeout(() => setSubmitted(false), 4000)
 
-        {/* Subject */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Subject</label>
-          <select
-            name="subject"
-            required
-            value={formData.subject}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
+          setLoading(false)
+        }}
+        className="space-y-4 border p-8"
+      >
+        <fieldset disabled={loading} className="space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Name</label>
+            <input
+              name="name"
+              required
+              minLength={5}
+              placeholder="Your name"
+              className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="your@email.com"
+              className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Phone</label>
+            <input
+              name="phone"
+              required
+              pattern="\d{10}"
+              placeholder="+91 XXXXX XXXXX"
+              className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
+            />
+          </div>
+
+          {/* Subject */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Subject</label>
+            <select
+              name="subject"
+              required
+              className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
+            >
+              <option value="">Select subject</option>
+              <option value="news">News Tip</option>
+              <option value="advertising">Advertising</option>
+              <option value="careers">Careers</option>
+              <option value="partnership">Partnership</option>
+              <option value="complaint">Complaint</option>
+            </select>
+          </div>
+
+          {/* Message */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Message</label>
+            <textarea
+              name="message"
+              required
+              minLength={10}
+              rows={5}
+              placeholder="Your message..."
+              className="w-full resize-none rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
+            />
+          </div>
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center gap-2"
           >
-            <option value="">Select subject</option>
-            <option value="news">News Tip</option>
-            <option value="advertising">Advertising</option>
-            <option value="careers">Careers</option>
-            <option value="partnership">Partnership</option>
-            <option value="complaint">Complaint</option>
-          </select>
-        </div>
-
-        {/* Message */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Message</label>
-          <textarea
-            name="message"
-            required
-            rows={5}
-            value={formData.message}
-            onChange={handleChange}
-            placeholder="Your message..."
-            className="w-full resize-none rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none"
-          />
-        </div>
-
-        <Button type="submit" className="w-full flex items-center gap-2">
-          <Send className="w-4 h-4" />
-          Send Message
-        </Button>
+            <Send className="w-4 h-4" />
+            {loading ? "Sending..." : "Send Message"}
+          </Button>
+        </fieldset>
       </form>
     </div>
   )
