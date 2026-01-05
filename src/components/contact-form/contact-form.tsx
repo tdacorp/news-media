@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Send } from "lucide-react"
 import { sendContactMail } from "@/lib/actions/contact/sendmailcontact"
@@ -8,6 +8,9 @@ import { sendContactMail } from "@/lib/actions/contact/sendmailcontact"
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const formRef = useRef<HTMLFormElement>(null)
 
   return (
     <div className="w-full">
@@ -21,13 +24,29 @@ export default function ContactForm() {
         </div>
       )}
 
+      {error && (
+        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {error}
+        </div>
+      )}
+
       <form
+        ref={formRef}
         action={async (formData) => {
-          if (loading) return  
+          if (loading) return
 
           setLoading(true)
-          await sendContactMail(formData)
+          setError(null)
 
+          const res = await sendContactMail(formData)
+
+          if (!res.success) {
+            setError(res.error || "Something went wrong. Please try again.")
+            setLoading(false)
+            return
+          }
+
+          formRef.current?.reset()
           setSubmitted(true)
           setTimeout(() => setSubmitted(false), 4000)
 
@@ -60,14 +79,14 @@ export default function ContactForm() {
             />
           </div>
 
-          {/* Phone */}
+          {/* Phone (UX aligned with server validation) */}
           <div>
             <label className="block text-sm font-medium mb-2">Phone</label>
             <input
               name="phone"
               required
-              pattern="\d{10}"
-              placeholder="+91 XXXXX XXXXX"
+              pattern="[6-9][0-9]{9}"
+              placeholder="10 digit mobile number"
               className="w-full rounded-lg border border-border bg-background px-4 py-2 focus:ring-2 focus:ring-primary outline-none disabled:opacity-60"
             />
           </div>
