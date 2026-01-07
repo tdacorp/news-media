@@ -1,241 +1,265 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2, CheckCircle, XCircle, Search } from "lucide-react"
-import { Checkbox } from "../ui/checkbox"
+import { useState } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Trash2,
+  Search,
+  Loader2,
+  MessageSquareReply,
+  EyeOff,
+  Eye,
+} from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
+import {
+  deleteComment,
+  toggleCommentVisibility,
+} from "@/lib/actions/comments/comments";
+import { toast } from "sonner";
+import { format, formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-interface Comment {
-  id: string
-  author: string
-  email: string
-  content: string
-  article: string
-  date: string
-  status: "pending" | "approved" | "rejected"
-  likes: number
+interface AdminComment {
+  id: string;
+  content: string;
+  userName: string;
+  createdAt: Date;
+  articleTitle: string | null;
+  isVisible?: boolean;
 }
 
-const mockComments: Comment[] = [
-  {
-    id: "1",
-    author: "Rajesh Kumar",
-    email: "rajesh@example.com",
-    content: "This is a comprehensive analysis of the economic reforms...",
-    article: "Breaking: Historic Economic Reform Package",
-    date: "2 hours ago",
-    status: "approved",
-    likes: 45,
-  },
-  {
-    id: "2",
-    author: "Priya Sharma",
-    email: "priya@example.com",
-    content: "Great insights on the employment generation...",
-    article: "Economic Reform Package Announced",
-    date: "3 hours ago",
-    status: "pending",
-    likes: 28,
-  },
-  {
-    id: "3",
-    author: "Amit Patel",
-    email: "amit@example.com",
-    content: "I have some concerns about the implementation timeline...",
-    article: "Breaking: Historic Economic Reform Package",
-    date: "4 hours ago",
-    status: "pending",
-    likes: 15,
-  },
-  {
-    id: "4",
-    author: "Neha Singh",
-    email: "neha@example.com",
-    content: "Spam content here...",
-    article: "Tech Giant Launches Revolutionary Product",
-    date: "5 hours ago",
-    status: "rejected",
-    likes: 0,
-  },
-]
+interface ActionButtonsProps {
+  comment: AdminComment;
+  isDeleting: boolean;
+  onDeleteClick: () => void;
+  onVisibleClick: () => void;
+}
 
-export function AdminCommentsTable() {
-  const [comments, setComments] = useState<Comment[]>(mockComments)
-  const [selectedComments, setSelectedComments] = useState<string[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all")
+export function AdminCommentsTable({
+  initialData,
+}: {
+  initialData: AdminComment[];
+}) {
+  const [comments, setComments] = useState<AdminComment[]>(initialData);
+  const [selectedComments, setSelectedComments] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
+  // Dialog states
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteMode, setDeleteMode] = useState<"single" | "bulk">("single");
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+
+  // Search filter logic
   const filteredComments = comments.filter((comment) => {
-    const matchesSearch =
-      comment.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      comment.content.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === "all" || comment.status === filterStatus
-    return matchesSearch && matchesStatus
-  })
+    return (
+      comment.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comment.articleTitle?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
-  const handleApprove = (id: string) => {
-    setComments(comments.map((c) => (c.id === id ? { ...c, status: "approved" as const } : c)))
-  }
+  const hasHiddenSelected = selectedComments.some((id) => {
+    const comment = comments.find((c) => c.id === id);
+    return comment?.isVisible === false;
+  });
 
-  const handleReject = (id: string) => {
-    setComments(comments.map((c) => (c.id === id ? { ...c, status: "rejected" as const } : c)))
-  }
+  // Master Delete Handler (Handles both Single and Bulk)
+  const executeDelete = async () => {
+    setIsProcessing(true);
+    try {
+      if (deleteMode === "single" && commentToDelete) {
+        const res = await deleteComment(commentToDelete);
+        if (res.success) {
+          setComments((prev) => prev.filter((c) => c.id !== commentToDelete));
+          setSelectedComments((prev) =>
+            prev.filter((s) => s !== commentToDelete)
+          );
+          toast.success("Comment deleted successfully");
+        }
+      } else if (deleteMode === "bulk") {
+        const promise = Promise.all(
+          selectedComments.map((id) => deleteComment(id))
+        );
 
-  const handleDelete = (id: string) => {
-    setComments(comments.filter((c) => c.id !== id))
-    setSelectedComments(selectedComments.filter((s) => s !== id))
-  }
-
-  const toggleSelectAll = () => {
-    if (selectedComments.length === filteredComments.length) {
-      setSelectedComments([])
-    } else {
-      setSelectedComments(filteredComments.map((c) => c.id))
+        await promise; // Waiting for all deletions
+        setComments((prev) =>
+          prev.filter((c) => !selectedComments.includes(c.id))
+        );
+        setSelectedComments([]);
+        toast.success(`${selectedComments.length} comments removed`);
+      }
+    } catch {
+      toast.error("Operation failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+      setDeleteDialogOpen(false);
+      setCommentToDelete(null);
     }
-  }
+  };
 
-  const toggleSelect = (id: string) => {
-    setSelectedComments((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]))
-  }
+  const toggleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedComments(filteredComments.map((c) => c.id));
+    } else {
+      setSelectedComments([]);
+    }
+  };
+
+  const toggleSelect = (id: string, checked: boolean) => {
+    setSelectedComments((prev) =>
+      checked ? [...prev, id] : prev.filter((s) => s !== id)
+    );
+  };
+
+  const handleToggleVisible = async (id: string, currentVisible: boolean) => {
+    const res = await toggleCommentVisibility(id, currentVisible);
+    if (res.success) {
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === id ? { ...c, isVisible: !currentVisible } : c
+        )
+      );
+      toast.success(currentVisible ? "Comment hidden" : "Comment published");
+    }
+  };
 
   return (
     <div className="space-y-6">
-       {/* searchbar with the fileter  */}
+      {/* Search Bar */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="relative">
+        <CardHeader className="pt-6 border-b border-border/50 py-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div className="relative w-full sm:max-w-xs">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by author, email, or content..."
+                placeholder="Search by author, content..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-background"
               />
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              {["all", "pending", "approved", "rejected"].map((status) => (
-                <Button
-                  key={status}
-                  variant={filterStatus === status ? "default" : "outline"}
-                  onClick={() => setFilterStatus(status as typeof filterStatus)}
-                  className="w-full sm:w-auto"
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
 
-      {/* table show the comment */}
-      <Card>
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <CardTitle>Comments Management</CardTitle>
-          {selectedComments.length > 0 && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => {
-                selectedComments.forEach((id) => handleDelete(id))
-                setSelectedComments([])
-              }}
-            >
-              Delete Selected ({selectedComments.length})
-            </Button>
-          )}
+            {selectedComments.length > 0 && (
+              <div className="flex items-center gap-2">
+                {hasHiddenSelected && (
+                  <p className="text-[10px] text-destructive font-bold uppercase italic animate-pulse">
+                    Publish hidden to delete bulk
+                  </p>
+                )}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    setDeleteMode("bulk");
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="cursor-pointer font-bold"
+                  disabled={hasHiddenSelected}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete ({selectedComments.length})
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
+        <CardContent className="p-0">
+          <div className="hidden md:block">
             <Table>
-              <TableHeader>
-                <TableRow className="border-border">
-                  <TableHead className="w-12">
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-12 pl-4">
                     <Checkbox
-                      checked={selectedComments.length === filteredComments.length && filteredComments.length > 0}
-                      onChange={toggleSelectAll}
+                      checked={
+                        selectedComments.length === filteredComments.length &&
+                        filteredComments.length > 0
+                      }
+                      onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                      className="border-border cursor-pointer"
                     />
                   </TableHead>
-                  <TableHead className="min-w-[150px]">Author</TableHead>
-                  <TableHead className="min-w-[200px] hidden sm:table-cell">Comment</TableHead>
-                  <TableHead className="min-w-[150px] hidden md:table-cell">Article</TableHead>
-                  <TableHead className="min-w-[100px]">Status</TableHead>
-                  <TableHead className="text-right min-w-[120px]">Actions</TableHead>
+                  <TableHead className="font-bold">Author & Date</TableHead>
+                  <TableHead className="font-bold">Comment Content</TableHead>
+                  <TableHead className="font-bold">Article Reference</TableHead>
+                  <TableHead className="text-right pr-4 font-bold">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredComments.map((comment) => (
-                  <TableRow key={comment.id} className="border-border hover:bg-secondary/50">
-                    <TableCell>
+                  <TableRow
+                    key={comment.id}
+                    className={cn(
+                      "group transition-colors",
+                      comment.isVisible === false
+                        ? "opacity-50 grayscale bg-muted/20"
+                        : "hover:bg-muted/40"
+                    )}
+                  >
+                    <TableCell className="pl-4">
                       <Checkbox
                         checked={selectedComments.includes(comment.id)}
-                        onChange={() => toggleSelect(comment.id)}
+                        onCheckedChange={(checked) =>
+                          toggleSelect(comment.id, !!checked)
+                        }
+                        className="border-border cursor-pointer"
                       />
                     </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{comment.author}</p>
-                        <p className="text-xs text-muted-foreground">{comment.email}</p>
+                    <TableCell className="whitespace-nowrap">
+                      <div className="font-bold text-sm">
+                        {comment.userName}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground uppercase">
+                        {format(new Date(comment.createdAt), "dd MMM yyyy • p")}
                       </div>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <p className="text-sm text-foreground line-clamp-2">{comment.content}</p>
+                    <TableCell className="max-w-xs truncate text-sm">
+                      {comment.content}
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <p className="text-sm text-foreground line-clamp-1">{comment.article}</p>
+                    <TableCell className="text-xs font-medium">
+                      {comment.articleTitle}
                     </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`text-xs ${
-                          comment.status === "approved"
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                            : comment.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        }`}
-                      >
-                        {comment.status.charAt(0).toUpperCase() + comment.status.slice(1)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex flex-col sm:flex-row justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleApprove(comment.id)}
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                          title="Approve"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-1">Approve</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleReject(comment.id)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          title="Reject"
-                        >
-                          <XCircle className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-1">Reject</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(comment.id)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-1">Delete</span>
-                        </Button>
+                    <TableCell className="text-right pr-4">
+                      <div className="flex justify-end gap-1">
+                        <ActionButtons
+                          comment={comment}
+                          isDeleting={
+                            isProcessing && commentToDelete === comment.id
+                          }
+                          onDeleteClick={() => {
+                            setDeleteMode("single");
+                            setCommentToDelete(comment.id);
+                            setDeleteDialogOpen(true);
+                          }}
+                          onVisibleClick={() =>
+                            handleToggleVisible(
+                              comment.id,
+                              comment.isVisible !== false
+                            )
+                          }
+                        />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -244,13 +268,162 @@ export function AdminCommentsTable() {
             </Table>
           </div>
 
+          {/* Mobile List View */}
+          <div className="grid grid-cols-1 divide-y divide-border md:hidden">
+            {filteredComments.map((comment) => (
+              <div
+                key={comment.id}
+                className={cn(
+                  "p-4 space-y-3 transition-colors",
+                  comment.isVisible === false && "bg-muted/30 opacity-70"
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      className="border-slate-500 mt-1 cursor-pointer"
+                      checked={selectedComments.includes(comment.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked)
+                          setSelectedComments((prev) => [...prev, comment.id]);
+                        else
+                          setSelectedComments((prev) =>
+                            prev.filter((id) => id !== comment.id)
+                          );
+                      }}
+                    />
+                    <div>
+                      <p className="font-bold text-sm leading-none">
+                        {comment.userName}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-1 font-medium italic">
+                        {formatDistanceToNow(new Date(comment.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <ActionButtons
+                    comment={comment}
+                    isDeleting={isProcessing && commentToDelete === comment.id}
+                    onDeleteClick={() => {
+                      setDeleteMode("single");
+                      setCommentToDelete(comment.id);
+                      setDeleteDialogOpen(true);
+                    }}
+                    onVisibleClick={() =>
+                      handleToggleVisible(
+                        comment.id,
+                        comment.isVisible !== false
+                      )
+                    }
+                  />
+                </div>
+                <p className="text-sm text-foreground/90 bg-muted/20 p-2 rounded-lg border border-border/50">
+                  {comment.content}
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-tighter">
+                  Ref: {comment.articleTitle}
+                </p>
+              </div>
+            ))}
+          </div>
+
           {filteredComments.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No comments found</p>
+            <div className="py-20 text-center text-muted-foreground">
+              No results found.
             </div>
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-card rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-black text-2xl tracking-tighter">
+              {deleteMode === "bulk"
+                ? "Confirm Bulk Deletion"
+                : "Delete Comment?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-bold text-foreground/70">
+              {deleteMode === "bulk"
+                ? `Are you sure you want to delete ${selectedComments.length} comments? This action is permanent.`
+                : "This comment will be permanently removed from the database. Are you sure?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel className="font-bold cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                executeDelete();
+              }}
+              disabled={isProcessing}
+            >
+              {isProcessing && (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              )}
+              Confirm Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
-  )
+  );
+}
+
+// Sub-component for buttons
+function ActionButtons({
+  comment,
+  isDeleting,
+  onDeleteClick,
+  onVisibleClick,
+}: ActionButtonsProps) {
+  const isHidden = comment.isVisible === false;
+
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 cursor-pointer"
+        title={isHidden ? "Publish to reply" : "Reply"}
+        // disabled={isHidden}
+        // onClick={() => toast.info(`Reply to ${comment.userName}`)}
+        disabled
+      >
+        <MessageSquareReply className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 cursor-pointer"
+        onClick={onVisibleClick}
+        title={isHidden ? "Publish" : "Hide"}
+      >
+        {isHidden ? (
+          <Eye className="h-4 w-4" />
+        ) : (
+          <EyeOff className="h-4 w-4" />
+        )}
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 cursor-pointer"
+        disabled={isDeleting || isHidden}
+        onClick={onDeleteClick}
+        title={isHidden ? "Publish to delete" : "Delete"}
+      >
+        {isDeleting ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <Trash2 className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+  );
 }

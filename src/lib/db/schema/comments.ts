@@ -12,6 +12,7 @@ export const comments = pgTable("comments", {
   userImage: text("user_image"), 
   
   content: text("content").notNull(),
+  isVisible: text("is_visible").default("true").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

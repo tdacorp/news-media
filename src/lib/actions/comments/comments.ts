@@ -3,8 +3,9 @@
 import { db } from "@/lib/db";
 import { articles } from "@/lib/db/schema";
 import { comments } from "@/lib/db/schema/comments";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { auth } from "../../../../auth";
 
 // 1. Comment Add Karne ke liye
 export async function addComment(data: {
@@ -31,21 +32,6 @@ export async function addComment(data: {
   }
 }
 
-// 2. Comments Fetch karne ke liye
-// export async function getCommentsByArticle(articleId: string) {
-//   try {
-//     const data = await db
-//       .select()
-//       .from(comments)
-//       .where(eq(comments.articleId, articleId))
-//       .orderBy(desc(comments.createdAt));
-
-//     return data;
-//   } catch (error) {
-//     return [];
-//   }
-// }
-
 // 2. Comments Fetch karne ke liye (With Pagination)
 export async function getCommentsByArticle(
   articleId: string,
@@ -70,15 +56,31 @@ export async function getCommentsByArticle(
   }
 }
 
-// 3. Admin ke liye Delete Action
+// 3. Delete Action both User/Admin
 export async function deleteComment(commentId: string) {
-  // Isme hum check kar sakte hain ki request admin se hai ya nahi
   try {
-    await db.delete(comments).where(eq(comments.id, commentId));
-    revalidatePath(`/article/[slug]`, "page");
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { success: false, error: "Authentication required" };
+    }
+
+    const userId = session.user.id;
+    const isAdmin = session.user.role === "admin";
+
+    if (isAdmin) {
+      await db.delete(comments).where(eq(comments.id, commentId));
+    } else {
+      await db
+        .delete(comments)
+        .where(and(eq(comments.id, commentId), eq(comments.userId, userId)));
+    }
+    revalidatePath("/admin/comments");
+    revalidatePath("/article/[slug]", "page");
     return { success: true };
-  } catch {
-    return { success: false };
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return { success: false, error: "operation failed" };
   }
 }
 
@@ -96,7 +98,6 @@ export async function getAllCommentsAdmin(
         content: comments.content,
         userName: comments.userName,
         createdAt: comments.createdAt,
-        // Hum article title bhi fetch karenge taki admin ko pata chale comment kis news par hai
         articleTitle: articles.title,
       })
       .from(comments)
@@ -111,3 +112,28 @@ export async function getAllCommentsAdmin(
     return [];
   }
 }
+
+// Toggle Visibility Action
+export async function toggleCommentVisibility(
+  commentId: string,
+  currentStatus: boolean
+) {
+  try {
+    await db
+      .update(comments)
+      .set({ isVisible: currentStatus ? "false" : "true" })
+      .where(eq(comments.id, commentId));
+    revalidatePath("/admin/comments");
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
+
+// Admin Reply Action
+// export async function adminReplyToComment(
+//   commentId: string,
+//   replyText: string
+// ) {
+//   return { success: true, message: "Reply functionality ready for V2" };
+// }
