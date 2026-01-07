@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { TrendingUp, Clock, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNowStrict } from "date-fns";
 import { type PublicArticle } from "@/app/(admin-panel)/admin/manage-news/_actions/actions";
+import SubscribeNewsForm from "../suscribe-news-form/suscribe-news";
 
 export function HomeSidebar({ articles }: { articles: PublicArticle[] }) {
  const trending = articles.slice(0, 5);
@@ -81,22 +80,9 @@ export function HomeSidebar({ articles }: { articles: PublicArticle[] }) {
       </Card>
 
       {/* Newsletter */}
-      <Card className="bg-primary text-primary-foreground">
-        <CardHeader>
-          <CardTitle className="text-lg">Stay Updated</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-primary-foreground/80 leading-snug">
-            Get the most important news stories delivered to your inbox daily.
-          </p>
           <div className="space-y-2">
-            <Input placeholder="Email Address" className="bg-white/10 border-white/20 text-white placeholder:text-white/50" />
-            <Button className="w-full bg-white text-primary hover:bg-white/90 font-bold">
-              SUBSCRIBE
-            </Button>
+            <SubscribeNewsForm />
           </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
