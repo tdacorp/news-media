@@ -125,15 +125,38 @@ export async function getArticleById(id: string) {
 
 export async function getArticleBySlug(slug: string) {
   try {
-    const data = await db.query.articles.findFirst({
-      where: (articles, { eq, and }) =>
-        and(eq(articles.slug, slug), eq(articles.status, "published")),
-      with: {
-        category: true,
-      },
-    });
+    // const data = await db.query.articles.findFirst({
+    //   where: (articles, { eq, and }) =>
+    //     and(eq(articles.slug, slug), eq(articles.status, "published")),
+    //   with: {
+    //     category: true,
+    //   },
+    // });
 
-    return data;
+    // return data;
+    const data = await db
+      .select({
+        id: articles.id,
+        title: articles.title,
+        slug: articles.slug,
+        excerpt: articles.excerpt,
+        content: articles.content,
+        featuredImage: articles.featuredImage,
+        videoUrl: articles.videoUrl, // <-- Missing field 1
+        tags: articles.tags,             // <-- Missing field 2
+        createdAt: articles.createdAt,
+        updatedAt: articles.updatedAt,
+        categoryName: categories.name,
+        categorySlug: categories.slug,
+        authorName: usersSchema.name,
+      })
+      .from(articles)
+      .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .leftJoin(usersSchema, eq(articles.authorId, usersSchema.id))
+      .where(and(eq(articles.slug, slug), eq(articles.status, "published")))
+      .limit(1);
+
+    return data[0] || null;
   } catch (error) {
     console.error("Fetch Article by Slug Error:", error);
     return null;
@@ -185,11 +208,14 @@ export const getPublicArticles = cache(async () => {
         excerpt: articles.excerpt,
         featuredImage: articles.featuredImage,
         createdAt: articles.createdAt,
+        updatedAt: articles.updatedAt,
         categoryName: categories.name,
         categorySlug: categories.slug,
+        authorName: usersSchema.name,
       })
       .from(articles)
       .leftJoin(categories, eq(articles.categoryId, categories.id))
+      .leftJoin(usersSchema, eq(articles.authorId, usersSchema.id))
       .where(eq(articles.status, "published"))
       .orderBy(desc(articles.createdAt))
       .limit(40);

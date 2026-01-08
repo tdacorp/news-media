@@ -12,6 +12,25 @@ import { ArticleRenderer } from "@/components/news/ArticleRenderer";
 import { getYouTubeID } from "@/lib/utils";
 import { AuthorMetaCard } from "@/components/news/AuthorMetaCard";
 
+// SEO Imports
+import { Metadata } from "next";
+import { getArticleMetadata } from "@/lib/seo/metadata";
+import { NewsArticleSchema } from "@/lib/seo/schema";
+
+// 1. GENERATE METADATA (Dynamic SEO)
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
+
+  if (!article) return { title: "Article Not Found" };
+
+  return getArticleMetadata(article);
+}
+
 export default async function ArticlePage({
   params,
 }: {
@@ -30,7 +49,7 @@ export default async function ArticlePage({
 
   const allArticles = await getPublicArticles();
   const relatedArticles = allArticles
-    .filter((a) => a.categoryName === article.category.name && a.slug !== slug)
+    .filter((a) => a.categoryName === article.categoryName && a.slug !== slug)
     .slice(0, 3);
 
   const videoUrl = article.videoUrl;
@@ -39,6 +58,9 @@ export default async function ArticlePage({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* 2. SEO INJECT SCHEMA (JSON-LD) */}
+      <NewsArticleSchema article={article} />
+
       {/* <BreakingNewsTicker /> */}
 
       <main className="container mx-auto px-4 py-8 md:py-12">
@@ -51,7 +73,7 @@ export default async function ArticlePage({
                 variant="destructive"
                 className="uppercase tracking-widest px-4 py-1"
               >
-                {article.category.name}
+                {article.categoryName}
               </Badge>
 
               {/* Article Title */}

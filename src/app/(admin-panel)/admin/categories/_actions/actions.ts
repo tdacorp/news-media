@@ -56,9 +56,11 @@ export async function getCategoryWithArticles(
       slug: article.slug,
       excerpt: article.excerpt,
       featuredImage: article.featuredImage,
-      createdAt: article.createdAt,
       categoryName: data.name,
       categorySlug: data.slug,
+      authorName: "Editorial Team",
+      createdAt: article.createdAt,
+      updatedAt: article.updatedAt,
     }));
 
     return {
