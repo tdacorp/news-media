@@ -5,16 +5,19 @@ export function NewsArticleSchema({ article }: { article: PublicArticle }) {
     process.env.NEXT_PUBLIC_SITE_URL ||
     "https://your-vercel-project-name.vercel.app";
 
+  const datePublished = new Date(article.createdAt).toISOString();
+  const dateModified = new Date(
+    article.updatedAt || article.createdAt
+  ).toISOString();
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
     headline: article.title,
     description: article.excerpt || article.title,
     image: [article.featuredImage || "/logo.jpeg"],
-    datePublished: new Date(article.createdAt).toISOString(),
-    dateModified: new Date(
-      article.updatedAt || article.createdAt
-    ).toISOString(),
+    datePublished: datePublished,
+    dateModified: dateModified,
     author: [
       {
         "@type": "Person",
@@ -34,6 +37,7 @@ export function NewsArticleSchema({ article }: { article: PublicArticle }) {
   return (
     <script
       type="application/ld+json"
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
     />
   );

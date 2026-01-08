@@ -7,6 +7,9 @@ export function getArticleMetadata(article: PublicArticle): Metadata {
 
   const siteName = "Your News Name";
   const url = `${baseUrl}/article/${article.slug}`;
+  const shareImage = article.featuredImage?.startsWith("http")
+    ? article.featuredImage
+    : `${baseUrl}${article.featuredImage || "/logo.jpeg"}`;
 
   return {
     title: article.title,
@@ -19,21 +22,23 @@ export function getArticleMetadata(article: PublicArticle): Metadata {
       siteName: siteName,
       images: [
         {
-          url: article.featuredImage || "/logo.jpeg",
+          url: shareImage,
           width: 1200,
           height: 630,
+          alt: article.title,
         },
       ],
       type: "article",
-      publishedTime: article.createdAt instanceof Date 
-        ? article.createdAt.toISOString() 
-        : article.createdAt,
+      publishedTime:
+        article.createdAt instanceof Date
+          ? article.createdAt.toISOString()
+          : article.createdAt,
     },
     twitter: {
       card: "summary_large_image",
       title: article.title,
       description: article.excerpt || article.title,
-      images: [article.featuredImage || "/logo.jpeg"],
+      images: [shareImage],
     },
   };
 }
